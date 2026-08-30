@@ -148,10 +148,14 @@
                                     </div>
                                     <div>
                                         <h5 class="text-sm font-bold text-slate-800 dark:text-white">{{ task.filename }}</h5>
-                                        <div class="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                                        <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-400 mt-0.5">
                                             <span>{{ task.created_at|date:"Y/m/d H:i" }}</span>
                                             <span>•</span>
                                             <span>{{ task.char_count }} کاراکتر</span>
+                                            {% if task.provider_used %}
+                                                <span>•</span>
+                                                <span class="text-indigo-600 dark:text-indigo-400 font-mono font-bold bg-indigo-500/10 px-1.5 py-0.5 rounded">🤖 {{ task.provider_used }}</span>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>

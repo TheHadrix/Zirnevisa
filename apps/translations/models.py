@@ -5,11 +5,12 @@ from django.utils import timezone
 
 class ProviderConfig(models.Model):
     PROVIDER_CHOICES = [
+        ('gemini', 'Google Gemini'),
         ('mistral', 'Mistral AI'),
     ]
 
-    provider_name = models.CharField(max_length=50, choices=PROVIDER_CHOICES, default='mistral', verbose_name="ارائه‌دهنده")
-    model_name = models.CharField(max_length=100, default='mistral-small-2506', verbose_name="نام مدل هوش مصنوعی")
+    provider_name = models.CharField(max_length=50, choices=PROVIDER_CHOICES, default='gemini', verbose_name="ارائه‌دهنده")
+    model_name = models.CharField(max_length=100, default='gemini/gemini-3.6-flash', verbose_name="نام مدل هوش مصنوعی")
     api_key = models.CharField(max_length=255, verbose_name="کلید API")
     priority_order = models.IntegerField(default=1, verbose_name="ترتیب اولویت")
     is_active = models.BooleanField(default=True, verbose_name="فعال است")
@@ -42,6 +43,7 @@ class TranslationTask(models.Model):
     progress = models.IntegerField(default=0, verbose_name="درصد پیشرفت")
     current_chunk = models.IntegerField(default=0, verbose_name="بخش جاری")
     total_chunks = models.IntegerField(default=0, verbose_name="مجموع بخش‌ها")
+    provider_used = models.CharField(max_length=150, null=True, blank=True, verbose_name="مدل هوش مصنوعی استفاده‌شده")
     result_file_path = models.CharField(max_length=500, null=True, blank=True, verbose_name="مسیر فایل خروجی")
     error_message = models.TextField(null=True, blank=True, verbose_name="متن خطا")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان ثبت")

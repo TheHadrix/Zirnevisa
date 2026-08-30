@@ -34,10 +34,16 @@
             </div>
             <div>
                 <h4 class="text-lg font-black text-slate-800 dark:text-white">{{ task.filename }}</h4>
-                <div class="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <div class="flex flex-wrap items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400 mt-1">
                     <span>{{ task.char_count|default:'—' }} کاراکتر</span>
                     <span class="text-slate-300 dark:text-slate-600">•</span>
                     <span>مقصد: فارسی</span>
+                    {% if task.status == 'COMPLETED' and task.provider_used %}
+                        <span class="text-slate-300 dark:text-slate-600">•</span>
+                        <span class="inline-flex items-center gap-1 font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md font-mono text-[11px]">
+                            🤖 {{ task.provider_used }}
+                        </span>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -77,11 +83,11 @@
         <div class="flex items-center justify-between text-xs">
             <span class="text-slate-500 dark:text-slate-400">
                 {% if task.status == 'COMPLETED' %}
-                    تمام بخشها ترجمه شدند ✨
+                    تمام بخش‌ها ترجمه شدند ✨
                 {% elif task.total_chunks > 0 %}
                     پردازش بخش {{ task.current_chunk }} از {{ task.total_chunks }}
                 {% else %}
-                    در حال آمادهسازی و بخشبندی...
+                    در حال آماده‌سازی و بخش‌بندی...
                 {% endif %}
             </span>
             <span class="font-black text-indigo-600 dark:text-indigo-400 font-mono text-sm">{{ task.progress }}%</span>
@@ -103,11 +109,19 @@
     <!-- Action / Download Button -->
     {% if task.status == 'COMPLETED' %}
     <div class="pt-5 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
-        <div class="flex items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400">
-            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span>فایل تا ۲ دقیقه برای دانلود در دسترس است</span>
+        <div class="space-y-1">
+            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>فایل تا ۲ دقیقه برای دانلود در دسترس است</span>
+            </div>
+            {% if task.provider_used %}
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <span>مدل هوش مصنوعی استفاده‌شده:</span>
+                <strong class="text-indigo-600 dark:text-indigo-400 font-mono font-bold">{{ task.provider_used }}</strong>
+            </div>
+            {% endif %}
         </div>
 
         <a href="/tasks/{{ task.task_id }}/download/" 

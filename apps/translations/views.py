@@ -8,10 +8,12 @@ from datetime import timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse, FileResponse, Http404
+from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django.db.models import Max
 from django.conf import settings
 
 from accounts.models import User
@@ -81,13 +83,16 @@ def _process_translation_background(task_id: str, input_path: str, output_path: 
         task.save()
 
         translated_blocks = []
+        model_used_label = None
         for i, chunk in enumerate(chunks):
             task.current_chunk = i + 1
             task.progress = int(((i + 1) / len(chunks)) * 95)
             task.save()
 
             formatted_text = SRTProcessor.format_chunk_for_llm(chunk)
-            llm_response = translate_subtitle_chunk(formatted_text, target_lang=target_lang)
+            llm_response, model_label = translate_subtitle_chunk(formatted_text, target_lang=target_lang)
+            if not model_used_label:
+                model_used_label = model_label
             chunk_translated_blocks = SRTProcessor.parse_llm_response(llm_response, chunk)
             translated_blocks.extend(chunk_translated_blocks)
 
@@ -98,6 +103,7 @@ def _process_translation_background(task_id: str, input_path: str, output_path: 
 
         task.status = 'COMPLETED'
         task.progress = 100
+        task.provider_used = model_used_label
         task.result_file_path = output_path
         task.save()
 
@@ -345,3 +351,92 @@ def admin_update_user_view(request, user_id):
         target_user.save()
 
     return redirect('/admin-panel/')
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def api_create_provider_view(request):
+    """
+    REST API endpoint to create a new AI ProviderConfig.
+    Requires Admin authentication via JSON body (username & password) or session.
+    
+    JSON Body:
+    {
+        "username": "admin",
+        "password": "admin_password",
+        "provider_name": "gemini",       # "gemini" or "mistral"
+        "model_name": "gemini-2.5-flash",
+        "api_key": "AQ.Ab8..."
+    }
+    """
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        data = request.POST
+
+    # 1. Admin Authentication Check
+    username = data.get('username', '').strip()
+    password = data.get('password', '')
+
+    user = None
+    if username and password:
+        user = authenticate(request, username=username, password=password)
+    elif request.user.is_authenticated:
+        user = request.user
+
+    if not user or not (user.is_staff or user.is_superuser):
+        return JsonResponse({
+            'status': 'error',
+            'message': 'احراز هویت ناموفق بود یا کاربر دسترسی ادمین ندارد.'
+        }, status=401)
+
+    # 2. Extract & Validate Fields
+    provider_name = data.get('provider_name', '').strip().lower()
+    model_name = data.get('model_name', '').strip()
+    api_key = data.get('api_key', '').strip()
+
+    if not provider_name or provider_name not in ['gemini', 'mistral']:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'فیلد provider_name نامعتبر است. مقادیر مجاز: gemini یا mistral'
+        }, status=400)
+
+    if not model_name:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'فیلد model_name الزامی است.'
+        }, status=400)
+
+    if not api_key:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'فیلد api_key الزامی است.'
+        }, status=400)
+
+    # 3. Calculate auto priority (last in queue)
+    max_priority = ProviderConfig.objects.aggregate(Max('priority_order'))['priority_order__max'] or 0
+    priority_order = max_priority + 1
+
+    # 4. Create in DB
+    provider = ProviderConfig.objects.create(
+        provider_name=provider_name,
+        model_name=model_name,
+        api_key=api_key,
+        priority_order=priority_order,
+        is_active=True
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'message': f'کانفیگ {provider.get_provider_name_display()} با موفقیت با اولویت {priority_order} ثبت شد.',
+        'data': {
+            'id': provider.id,
+            'provider_name': provider.provider_name,
+            'provider_label': provider.get_provider_name_display(),
+            'model_name': provider.model_name,
+            'priority_order': provider.priority_order,
+            'is_active': provider.is_active,
+            'created_at': provider.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        }
+    }, status=201)
+
