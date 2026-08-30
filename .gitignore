@@ -1,0 +1,6 @@
+test*
+.venv
+zirnovisa.db
+__pycache__/
+.idea/
+.env

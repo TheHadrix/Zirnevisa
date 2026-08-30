@@ -1,0 +1,94 @@
+<div x-data="{
+    timeLeft: 120,
+    timer: null,
+    canResend: false,
+    formatTime() {
+        const minutes = Math.floor(this.timeLeft / 60);
+        const seconds = this.timeLeft % 60;
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    },
+    startTimer() {
+        this.canResend = false;
+        this.timeLeft = 120;
+        if (this.timer) clearInterval(this.timer);
+        this.timer = setInterval(() => {
+            if (this.timeLeft > 0) {
+                this.timeLeft--;
+            } else {
+                this.canResend = true;
+                clearInterval(this.timer);
+            }
+        }, 1000);
+    }
+}" x-init="startTimer()">
+
+    <div class="text-center mb-6">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        <h3 class="text-xl font-black text-slate-800 dark:text-white">کد تایید ارسال شد</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+            کد ۶ رقمی به ایمیل <strong class="text-indigo-600 dark:text-indigo-300 font-mono">{{ email }}</strong> ارسال گردید.
+        </p>
+    </div>
+
+    <div id="otp-error-container"></div>
+
+    <form hx-post="/auth/verify-otp"
+          hx-target="#otp-error-container"
+          hx-swap="innerHTML"
+          class="space-y-4">
+
+        <input type="hidden" name="email" value="{{ email }}">
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 text-center">کد تایید ۶ رقمی</label>
+            <input type="text" 
+                   name="otp_code" 
+                   required 
+                   maxlength="6"
+                   pattern="[0-9]{6}"
+                   placeholder="• • • • • •"
+                   autocomplete="one-time-code"
+                   autofocus
+                   class="glass-input w-full px-4 py-3.5 rounded-2xl text-center text-2xl font-mono font-black tracking-widest text-indigo-600 dark:text-indigo-300 focus:outline-none">
+        </div>
+
+        <button type="submit" 
+                class="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm shadow-xl shadow-indigo-600/25 transition-all">
+            تایید و ساخت حساب کاربری
+        </button>
+    </form>
+
+    <!-- Resend and Countdown Timer Area -->
+    <div class="mt-6 pt-4 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+        <div class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <span x-show="!canResend">زمان باقیمانده:</span>
+            <span x-show="!canResend" x-text="formatTime()" class="font-mono font-bold text-indigo-600 dark:text-indigo-400"></span>
+        </div>
+
+        <div>
+            <button type="button"
+                    x-show="canResend"
+                    hx-post="/auth/resend-otp"
+                    hx-target="#otp-error-container"
+                    hx-swap="innerHTML"
+                    hx-vals='{"email": "{{ email }}"}'
+                    @click="startTimer()"
+                    class="text-indigo-600 dark:text-indigo-400 hover:underline font-bold"
+                    style="display: none;">
+                ارسال مجدد کد تایید ↻
+            </button>
+            <span x-show="!canResend" class="text-slate-400 text-[11px]">ارسال مجدد کد پس از پایان تایمر</span>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a href="/register" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            ← تغییر ایمیل یا اطلاعات ثبت‌نام
+        </a>
+    </div>
+
+</div>

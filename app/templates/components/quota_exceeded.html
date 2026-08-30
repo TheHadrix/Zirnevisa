@@ -1,0 +1,25 @@
+<div class="glass-card rounded-2xl p-6 border border-amber-500/30 bg-amber-500/10 mb-4 text-center">
+    <div class="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3 border border-amber-500/30">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+    </div>
+    
+    <h3 class="text-lg font-bold text-amber-200 mb-2">سهمیه روزانه شما به پایان رسیده است</h3>
+    
+    <p class="text-sm text-slate-300 mb-4 max-w-md mx-auto leading-relaxed">
+        {% if is_guest %}
+            سهمیه رایگان مهمان ({{ max_quota }} فایل در روز) مصرف شده است. برای ترجمه تا ۱۰ فایل در روز، اشتراک ویژه تهیه فرمایید یا فردا مراجعه کنید.
+        {% else %}
+            سهمیه روزانه شما ({{ max_quota }} فایل) تکمیل شد. سهمیه فردا مجدداً صفر خواهد شد.
+        {% endif %}
+    </p>
+
+    <div class="flex items-center justify-center gap-3">
+        <button type="button" 
+                @click="showVipModal = true"
+                class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/20 transition-all">
+            ⭐ خرید اشتراک ویژه (۱۰ فایل در روز)
+        </button>
+    </div>
+</div>
