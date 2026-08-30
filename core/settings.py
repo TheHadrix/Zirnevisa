@@ -18,6 +18,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "zirnovisa-super-secret-django-key-2026-xyz
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["https://*", "http://*"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -101,9 +102,10 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
+WHITENOISE_MANIFEST_STRICT = False
 
 # Media / Uploaded files
 MEDIA_URL = '/media/'
