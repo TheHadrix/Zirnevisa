@@ -9,6 +9,33 @@
          showAddProviderModal: false,
          providerName: 'gemini',
          modelName: 'gemini/gemini-3.6-flash',
+         testingProviderId: null,
+         testResult: null,
+         async testProvider(providerId) {
+             this.testingProviderId = providerId;
+             this.testResult = null;
+             try {
+                 const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+                 const res = await fetch(`/admin-panel/providers/${providerId}/test/`, {
+                     method: 'POST',
+                     headers: {
+                         'X-CSRFToken': csrfToken,
+                         'Content-Type': 'application/json'
+                     }
+                 });
+                 const text = await res.text();
+                 try {
+                     const data = JSON.parse(text);
+                     this.testResult = { id: providerId, ...data };
+                 } catch (e) {
+                     this.testResult = { id: providerId, status: 'error', message: `خطای سرور (${res.status}): ` + text.substring(0, 150) };
+                 }
+             } catch (err) {
+                 this.testResult = { id: providerId, status: 'error', message: 'خطای شبکه در ارسال درخواست تست: ' + err };
+             } finally {
+                 this.testingProviderId = null;
+             }
+         },
          geminiModels: [
              { value: 'gemini/gemini-3.6-flash', label: 'Gemini 3.6 Flash' },
              { value: 'gemini/gemini-3.5-flash-lite', label: 'Gemini 3.5 Flash Lite' },
@@ -92,7 +119,7 @@
                     <div>
                         <h2 class="text-2xl font-black text-slate-800 dark:text-white">کانفیگ‌های هوش مصنوعی (Gemini & Mistral)</h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                            ترتیب اولویت ارائه‌دهنده‌ها را با <strong>کشیدن و رها کردن (Drag & Drop)</strong> تغییر دهید.
+                            ترتیب اولویت ارائه‌دهنده‌ها را با <strong>کشیدن و رها کردن (Drag & Drop)</strong> تغییر دهید و اتصال آن‌ها را تست کنید.
                         </p>
                     </div>
 
@@ -112,66 +139,103 @@
                         ✓ اولویت‌ها با موفقیت در دیتابیس ذخیره شدند.
                     </div>
 
-                    <div id="providers-sortable-list" class="space-y-3">
+                    <div id="providers-sortable-list" class="space-y-4">
                         {% for provider in providers %}
                             <div data-id="{{ provider.id }}" 
-                                 class="provider-item p-4 sm:p-5 rounded-2xl bg-slate-100/60 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 flex items-center justify-between gap-4 cursor-move hover:border-indigo-500/40 transition-all">
+                                 class="provider-item p-4 sm:p-5 rounded-2xl bg-slate-100/60 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 flex flex-col gap-3 hover:border-indigo-500/40 transition-all">
                                 
-                                <div class="flex items-center gap-4">
-                                    <!-- Drag Handle -->
-                                    <div class="drag-handle text-slate-400 hover:text-indigo-500 p-1" title="برای تغییر اولویت بکشید">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
-                                        </svg>
-                                    </div>
-
-                                    <!-- Priority Badge -->
-                                    <div class="priority-badge w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center justify-center">
-                                        {{ provider.priority_order }}
-                                    </div>
-
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            {% if provider.provider_name == 'gemini' %}
-                                                <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                                                    <svg class="w-3 h-3 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
-                                                        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
-                                                    </svg>
-                                                    Gemini
-                                                </span>
-                                            {% else %}
-                                                <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-purple-500/15 text-purple-600 dark:text-purple-400 uppercase">
-                                                    Mistral
-                                                </span>
-                                            {% endif %}
-                                            <span class="text-sm font-bold text-slate-800 dark:text-white font-mono">{{ provider.model_name }}</span>
+                                <div class="flex items-center justify-between gap-4">
+                                    <div class="flex items-center gap-4">
+                                        <!-- Drag Handle -->
+                                        <div class="drag-handle text-slate-400 hover:text-indigo-500 p-1 cursor-move" title="برای تغییر اولویت بکشید">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+                                            </svg>
                                         </div>
-                                        <p class="text-[11px] text-slate-400 mt-1 font-mono">
-                                            API Key: {{ provider.api_key|slice:":8" }}••••••••
-                                        </p>
+
+                                        <!-- Priority Badge -->
+                                        <div class="priority-badge w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center justify-center">
+                                            {{ provider.priority_order }}
+                                        </div>
+
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                {% if provider.provider_name == 'gemini' %}
+                                                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                                                        <svg class="w-3 h-3 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+                                                            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
+                                                        </svg>
+                                                        Gemini
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-purple-500/15 text-purple-600 dark:text-purple-400 uppercase">
+                                                        Mistral
+                                                    </span>
+                                                {% endif %}
+                                                <span class="text-sm font-bold text-slate-800 dark:text-white font-mono">{{ provider.model_name }}</span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-400 mt-1 font-mono">
+                                                API Key: {{ provider.api_key|slice:":8" }}••••••••
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-2">
+                                        <!-- Test Connection Button -->
+                                        <button type="button" 
+                                                @click="testProvider({{ provider.id }})"
+                                                :disabled="testingProviderId === {{ provider.id }}"
+                                                class="px-3 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 text-xs font-bold transition-all flex items-center gap-1.5 disabled:opacity-50"
+                                                title="تست ارتباط زنده با هوش مصنوعی">
+                                            <template x-if="testingProviderId === {{ provider.id }}">
+                                                <svg class="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                </svg>
+                                            </template>
+                                            <template x-if="testingProviderId !== {{ provider.id }}">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                                </svg>
+                                            </template>
+                                            <span x-text="testingProviderId === {{ provider.id }} ? 'در حال تست...' : 'تست اتصال'"></span>
+                                        </button>
+
+                                        <!-- Active Toggle Form -->
+                                        <form action="/admin-panel/providers/{{ provider.id }}/toggle/" method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit" 
+                                                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors
+                                                           {% if provider.is_active %}bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20{% else %}bg-slate-200 dark:bg-white/10 text-slate-400 hover:text-white{% endif %}">
+                                                {% if provider.is_active %}فعال{% else %}غیرفعال{% endif %}
+                                            </button>
+                                        </form>
+
+                                        <!-- Delete Form -->
+                                        <form action="/admin-panel/providers/{{ provider.id }}/delete/" method="POST" onsubmit="return confirm('آیا از حذف این کانفیگ مطمئن هستید؟')">
+                                            {% csrf_token %}
+                                            <button type="submit" class="p-2 text-slate-400 hover:text-red-500 transition-colors" title="حذف">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center gap-3">
-                                    <!-- Active Toggle Form -->
-                                    <form action="/admin-panel/providers/{{ provider.id }}/toggle/" method="POST">
-                                        {% csrf_token %}
-                                        <button type="submit" 
-                                                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors
-                                                       {% if provider.is_active %}bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20{% else %}bg-slate-200 dark:bg-white/10 text-slate-400 hover:text-white{% endif %}">
-                                            {% if provider.is_active %}فعال{% else %}غیرفعال{% endif %}
-                                        </button>
-                                    </form>
-
-                                    <!-- Delete Form -->
-                                    <form action="/admin-panel/providers/{{ provider.id }}/delete/" method="POST" onsubmit="return confirm('آیا از حذف این کانفیگ مطمئن هستید؟')">
-                                        {% csrf_token %}
-                                        <button type="submit" class="p-2 text-slate-400 hover:text-red-500 transition-colors" title="حذف">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                        </button>
-                                    </form>
+                                <!-- Test Result Banner for this provider -->
+                                <div x-show="testResult && testResult.id === {{ provider.id }}" 
+                                     x-transition 
+                                     class="p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between gap-3"
+                                     :class="testResult && testResult.status === 'success' ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400'"
+                                     style="display: none;">
+                                    <div class="flex items-center gap-2">
+                                        <span x-text="testResult && testResult.status === 'success' ? '✅' : '❌'"></span>
+                                        <span x-text="testResult ? testResult.message : ''"></span>
+                                        <template x-if="testResult && testResult.sample_response">
+                                            <span class="text-[11px] opacity-80 font-mono">(پاسخ: <span x-text="testResult.sample_response"></span>)</span>
+                                        </template>
+                                    </div>
+                                    <button type="button" @click="testResult = null" class="opacity-60 hover:opacity-100 text-xs px-2 py-0.5">✕</button>
                                 </div>
                             </div>
                         {% empty %}

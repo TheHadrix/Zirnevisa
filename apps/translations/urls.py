@@ -18,6 +18,7 @@ urlpatterns = [
     path('admin-panel/providers/create/', views.admin_create_provider_view, name='admin_create_provider'),
     path('admin-panel/providers/<int:provider_id>/delete/', views.admin_delete_provider_view, name='admin_delete_provider'),
     path('admin-panel/providers/<int:provider_id>/toggle/', views.admin_toggle_provider_view, name='admin_toggle_provider'),
+    path('admin-panel/providers/<int:provider_id>/test/', views.admin_test_provider_view, name='admin_test_provider'),
     path('admin-panel/providers/reorder/', views.admin_reorder_providers_view, name='admin_reorder_providers'),
     path('admin-panel/users/<int:user_id>/update/', views.admin_update_user_view, name='admin_update_user'),
     # API Routes

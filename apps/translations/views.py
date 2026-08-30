@@ -1,6 +1,7 @@
 import os
 import json
 import uuid
+import httpx
 import threading
 import logging
 from pathlib import Path
@@ -19,7 +20,7 @@ from django.conf import settings
 from accounts.models import User
 from translations.models import ProviderConfig, TranslationTask, GuestUsage
 from translations.services.srt_processor import SRTProcessor
-from translations.services.mistral_service import translate_subtitle_chunk
+from translations.services.mistral_service import translate_subtitle_chunk, MISTRAL_API_URL, GEMINI_OPENAI_API_URL
 from translations.services.cleanup_service import schedule_file_cleanup
 
 logger = logging.getLogger(__name__)
@@ -371,6 +372,67 @@ def admin_reorder_providers_view(request):
         return JsonResponse({'status': 'success'})
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def admin_test_provider_view(request, provider_id):
+    """Test connection and response of an AI provider config."""
+    import time
+    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+        return JsonResponse({'status': 'error', 'message': 'عدم دسترسی: لطفاً به عنوان ادمین لاگین کنید.'}, status=403)
+
+    provider = get_object_or_404(ProviderConfig, id=provider_id)
+    clean_model = provider.model_name.replace("gemini/", "").strip()
+    
+    headers = {
+        "Authorization": f"Bearer {provider.api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": clean_model,
+        "messages": [
+            {"role": "user", "content": "Ping! Answer with 'OK'"}
+        ],
+        "temperature": 0.2
+    }
+
+    if provider.provider_name == "gemini":
+        url = GEMINI_OPENAI_API_URL
+    else:
+        url = MISTRAL_API_URL
+
+    start_time = time.time()
+    try:
+        with httpx.Client(timeout=15.0) as client:
+            response = client.post(url, json=payload, headers=headers)
+            latency_ms = int((time.time() - start_time) * 1000)
+
+            if response.status_code == 200:
+                data = response.json()
+                sample_text = data.get("choices", [{}])[0].get("message", {}).get("content", "").strip()
+                return JsonResponse({
+                    'status': 'success',
+                    'latency_ms': latency_ms,
+                    'message': f'اتصال به مدل {provider.model_name} با موفقیت برقرار شد ({latency_ms}ms)',
+                    'sample_response': sample_text
+                })
+            else:
+                return JsonResponse({
+                    'status': 'error',
+                    'latency_ms': latency_ms,
+                    'message': f'خطای HTTP {response.status_code} از سمت هوش مصنوعی: {response.text[:200]}'
+                })
+
+    except Exception as e:
+        latency_ms = int((time.time() - start_time) * 1000)
+        return JsonResponse({
+            'status': 'error',
+            'latency_ms': latency_ms,
+            'message': f'عدم برقراری ارتباط: {str(e)}'
+        })
+
+
 
 
 @user_passes_test(is_admin_user, login_url='/login/')
