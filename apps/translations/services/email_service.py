@@ -11,7 +11,7 @@ def _send_smtp_email_sync(to_email: str, subject: str, html_body: str, otp_code:
     """Synchronous SMTP email sender with automatic port fallback and resilient dev console output."""
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
-    msg['From'] = f"ZirNovisa <{settings.EMAIL_HOST_USER}>"
+    msg['From'] = f"Zirnevisa <{settings.EMAIL_HOST_USER}>"
     msg['To'] = to_email
 
     part = MIMEText(html_body, 'html', 'utf-8')
@@ -44,7 +44,7 @@ def _send_smtp_email_sync(to_email: str, subject: str, html_body: str, otp_code:
     # If all live SMTP attempts fail due to local ISP network/firewall blocking
     logger.warning("SMTP network blocked by ISP/firewall. Printing code to console:")
     print("-------------------------------------------------------")
-    print(f"[ZIRNOVISA OTP CODE FOR {to_email}]: {otp_code}")
+    print(f"[ZIRNEVISA OTP CODE FOR {to_email}]: {otp_code}")
     print("-------------------------------------------------------")
     return True
 
@@ -59,78 +59,77 @@ def send_otp_email(to_email: str, otp_code: str, username: str = "", in_backgrou
         <meta charset="UTF-8">
         <style>
             body {{
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background-color: #0b0f19;
-                color: #f1f5f9;
+                font-family: 'Tahoma', sans-serif;
+                background-color: #f8fafc;
                 margin: 0;
-                padding: 30px 10px;
+                padding: 40px 20px;
                 direction: rtl;
                 text-align: right;
             }}
             .card {{
-                max-width: 500px;
+                max-width: 480px;
                 margin: 0 auto;
-                background: #131b2e;
-                border: 1px solid #233050;
-                border-radius: 20px;
-                padding: 35px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                background: #ffffff;
+                border-radius: 16px;
+                padding: 32px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                border: 1px solid #e2e8f0;
             }}
             .header {{
                 text-align: center;
-                margin-bottom: 25px;
+                margin-bottom: 24px;
             }}
-            .title {{
-                color: #818cf8;
+            .header h1 {{
                 font-size: 24px;
-                font-weight: 800;
-                margin: 0 0 5px 0;
+                color: #1e293b;
+                margin: 0 0 8px 0;
             }}
-            .subtitle {{
-                color: #94a3b8;
-                font-size: 13px;
+            .header p {{
+                color: #64748b;
+                font-size: 14px;
                 margin: 0;
             }}
             .code-box {{
-                background: #1e293b;
-                border: 2px dashed #6366f1;
-                border-radius: 16px;
+                background: #f1f5f9;
+                border: 2px dashed #cbd5e1;
+                border-radius: 12px;
                 padding: 20px;
                 text-align: center;
-                margin: 25px 0;
+                margin: 24px 0;
             }}
             .otp-code {{
                 font-size: 36px;
-                font-weight: 900;
+                font-weight: bold;
                 letter-spacing: 8px;
-                color: #38bdf8;
-                font-family: monospace;
+                color: #4f46e5;
+                font-family: 'Courier New', monospace;
             }}
             .info {{
                 font-size: 13px;
-                color: #cbd5e1;
-                line-height: 1.7;
+                color: #64748b;
+                line-height: 1.6;
+                text-align: center;
             }}
             .footer {{
-                margin-top: 30px;
-                padding-top: 20px;
-                border-top: 1px solid #1e293b;
+                margin-top: 32px;
+                padding-top: 16px;
+                border-top: 1px solid #f1f5f9;
                 text-align: center;
                 font-size: 11px;
-                color: #64748b;
+                color: #94a3b8;
             }}
         </style>
     </head>
     <body>
         <div class="card">
             <div class="header">
-                <h1 class="title">سامانه هوشمند زیرنویسا</h1>
-                <p class="subtitle">تایید ایمیل و فعال‌سازی حساب کاربری</p>
+                <h1>سامانه هوشمند زیرنویسا</h1>
+                <p>تایید هویت و ساخت حساب کاربری</p>
             </div>
-            
-            <p class="info">
-                سلام {username or 'کاربر گرامی'}،<br>
-                برای تکمیل ثبت‌نام خود در زیرنویسا، لطفاً کد تایید زیر را در فرم ثبت‌نام وارد نمایید:
+
+            <p style="color: #334155; font-size: 14px;">
+                سلام {username if username else 'کاربر گرامی'}،<br>
+                برای تکمیل فرآیند ثبت‌نام، لطفاً کد تایید زیر را در سامانه وارد کنید:
             </p>
 
             <div class="code-box">
@@ -143,7 +142,7 @@ def send_otp_email(to_email: str, otp_code: str, username: str = "", in_backgrou
             </p>
 
             <div class="footer">
-                © 2026 زیرنویسا (ZirNovisa AI) - مترجم هوشمند زیرنویس
+                © 2026 زیرنویسا (Zirnevisa AI) - مترجم هوشمند زیرنویس
             </div>
         </div>
     </body>

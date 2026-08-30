@@ -112,7 +112,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GUEST_DAILY_LIMIT = 3
 VIP_DAILY_LIMIT = 10
 CHAR_LIMIT = 30000
-CLEANUP_DELAY_SECONDS = 120  # 2 minutes auto-cleanup
+GUEST_CLEANUP_DELAY_SECONDS = 300  # 5 minutes auto-cleanup for guests only
 
 # SMTP & OTP Configuration
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")

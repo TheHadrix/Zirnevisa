@@ -107,9 +107,16 @@ def _process_translation_background(task_id: str, input_path: str, output_path: 
         task.result_file_path = output_path
         task.save()
 
-        # Schedule automatic file deletion after 2 minutes
-        schedule_file_cleanup(input_path, delay_seconds=settings.CLEANUP_DELAY_SECONDS)
-        schedule_file_cleanup(output_path, delay_seconds=settings.CLEANUP_DELAY_SECONDS)
+        # File retention logic:
+        # - Guests (not logged in): Delete files automatically after 5 minutes (300 seconds).
+        # - Logged-in users: Retain translated files permanently for dashboard access!
+        if task.user is None:
+            schedule_file_cleanup(input_path, delay_seconds=settings.GUEST_CLEANUP_DELAY_SECONDS)
+            schedule_file_cleanup(output_path, delay_seconds=settings.GUEST_CLEANUP_DELAY_SECONDS)
+            logger.info(f"Scheduled 5-minute cleanup for guest task {task_id}")
+        else:
+            schedule_file_cleanup(input_path, delay_seconds=settings.GUEST_CLEANUP_DELAY_SECONDS)
+            logger.info(f"Preserving translated file permanently for logged-in user '{task.user.username}' (task {task_id})")
 
         logger.info(f"Task {task_id} successfully completed and saved to {output_path}")
 
@@ -221,6 +228,41 @@ def task_download_view(request, task_id):
         filename=f"fa_{task.filename}"
     )
     return response
+
+
+@login_required
+@require_http_methods(["POST"])
+def task_delete_view(request, task_id):
+    """Delete a user translation task and its file from disk."""
+    task = get_object_or_404(TranslationTask, task_id=task_id)
+    if task.user != request.user and not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponse("شما دسترسی حذف این فایل را ندارید.", status=403)
+
+    if task.result_file_path and os.path.exists(task.result_file_path):
+        try:
+            os.remove(task.result_file_path)
+            logger.info(f"User deleted task file: {task.result_file_path}")
+        except Exception as e:
+            logger.warning(f"Could not delete file {task.result_file_path}: {e}")
+
+    task.delete()
+    return redirect('/dashboard/')
+
+
+@login_required
+@require_http_methods(["POST"])
+def task_delete_all_view(request):
+    """Delete all translation tasks and files for the logged-in user."""
+    tasks = TranslationTask.objects.filter(user=request.user)
+    for task in tasks:
+        if task.result_file_path and os.path.exists(task.result_file_path):
+            try:
+                os.remove(task.result_file_path)
+            except Exception:
+                pass
+    tasks.delete()
+    return redirect('/dashboard/')
+
 
 
 @login_required
