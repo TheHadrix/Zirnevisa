@@ -20,7 +20,7 @@ from django.conf import settings
 from accounts.models import User
 from translations.models import ProviderConfig, TranslationTask, GuestUsage
 from translations.services.srt_processor import SRTProcessor
-from translations.services.mistral_service import translate_subtitle_chunk, MISTRAL_API_URL, GEMINI_OPENAI_API_URL
+from translations.services.llm_service import translate_subtitle_chunk, MISTRAL_API_URL, GEMINI_OPENAI_API_URL
 from translations.services.cleanup_service import schedule_file_cleanup
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ def _process_translation_background(task_id: str, input_path: str, output_path: 
             task.save()
             return
 
-        chunks = SRTProcessor.chunk_blocks(blocks, max_chars_per_chunk=3000)
+        chunks = SRTProcessor.chunk_blocks(blocks, max_chars_per_chunk=15000)
         task.total_chunks = len(chunks)
         task.save()
 
@@ -126,7 +126,11 @@ def _process_translation_background(task_id: str, input_path: str, output_path: 
         try:
             task = TranslationTask.objects.get(task_id=task_id)
             task.status = 'FAILED'
-            task.error_message = f'خطا در پردازش هوش مصنوعی: {str(e)}'
+            err_str = str(e)
+            if "timed out" in err_str.lower() or "timeout" in err_str.lower():
+                task.error_message = f"خطای پایان مهلت زمانی (Timeout پس از ۱۰ دقیقه): {err_str} — لطفاً وضعیت اینترنت، تحریم‌شکن یا کلید هوش مصنوعی را بررسی کنید."
+            else:
+                task.error_message = f"خطا در پردازش هوش مصنوعی: {err_str}"
             task.save()
         except Exception:
             pass
@@ -197,7 +201,7 @@ def upload_task_view(request):
         target_lang=target_lang,
         status='PENDING',
         progress=5,
-        total_chunks=len(SRTProcessor.chunk_blocks(blocks, 3000))
+        total_chunks=len(SRTProcessor.chunk_blocks(blocks, 15000))
     )
 
     # Start background translation thread

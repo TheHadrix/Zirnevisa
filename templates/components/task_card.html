@@ -101,8 +101,16 @@
 
     <!-- Error Detail -->
     {% if task.status == 'FAILED' %}
-    <div class="p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-medium mb-6 leading-relaxed relative z-10">
-        {{ task.error_message|default:"متأسفانه ارتباط با سرویس هوش مصنوعی برقرار نشد یا فایل خراب است." }}
+    <div class="p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-medium mb-6 leading-relaxed relative z-10 space-y-3">
+        <div class="flex items-start gap-2.5">
+            <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <p class="font-bold text-sm mb-1">خطا در فرآیند ترجمه:</p>
+                <p class="text-xs leading-relaxed opacity-90">{{ task.error_message|default:"متأسفانه ارتباط با سرویس هوش مصنوعی برقرار نشد یا فایل خراب است." }}</p>
+            </div>
+        </div>
     </div>
     {% endif %}
 

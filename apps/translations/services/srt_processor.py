@@ -55,7 +55,7 @@ class SRTProcessor:
         return blocks, total_chars
 
     @classmethod
-    def chunk_blocks(cls, blocks: List[SRTBlock], max_chars_per_chunk: int = 3500) -> List[List[SRTBlock]]:
+    def chunk_blocks(cls, blocks: List[SRTBlock], max_chars_per_chunk: int = 15000) -> List[List[SRTBlock]]:
         """
         Group subtitle blocks into chunks suitable for LLM translation without exceeding token/char bounds.
         """
