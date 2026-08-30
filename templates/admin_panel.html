@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}پنل مدیریت سامانه | زیرنویسا{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8" x-data="{ currentTab: 'providers', showAddProviderModal: false }">
+    <!-- Admin Grid with RTL Right Sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        <!-- Sidebar (Right Side) -->
+        <aside class="lg:col-span-1 space-y-6">
+            <!-- Admin Badge Card -->
+            <div class="glass-card rounded-3xl p-6 border border-slate-200 dark:border-white/10 shadow-xl text-center relative overflow-hidden">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center text-xl font-black mb-3">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-base font-bold text-slate-800 dark:text-white">پنل مدیریت زیرنویسا</h3>
+                <p class="text-xs text-amber-500 font-semibold mt-1">مدیر ارشد سیستم (Admin)</p>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="glass-card rounded-3xl p-4 border border-slate-200 dark:border-white/10 shadow-xl space-y-1">
+                <button type="button" 
+                        @click="currentTab = 'providers'"
+                        :class="currentTab === 'providers' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-white/5'"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs transition-all border border-transparent text-right">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    کانفیگ‌های هوش مصنوعی
+                </button>
+
+                <button type="button" 
+                        @click="currentTab = 'users'"
+                        :class="currentTab === 'users' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-100 dark:hover:bg-white/5'"
+                        class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs transition-all border border-transparent text-right">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    مدیریت کاربران و VIP
+                </button>
+
+
+                <a href="/dashboard/" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-all">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    بازگشت به پنل کاربری
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="lg:col-span-3 space-y-6">
+            
+            <!-- TAB 1: AI PROVIDERS MANAGEMENT (Drag & Drop) -->
+            <div x-show="currentTab === 'providers'" class="space-y-6">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-white/10 shadow-xl">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-800 dark:text-white">کانفیگ‌های هوش مصنوعی (Mistral AI)</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            ترتیب اولویت ارائه‌دهنده‌ها را با <strong>کشیدن و رها کردن (Drag & Drop)</strong> تغییر دهید.
+                        </p>
+                    </div>
+
+                    <button type="button" 
+                            @click="showAddProviderModal = true"
+                            class="px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/25 transition-all flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        افزودن کانفیگ جدید
+                    </button>
+                </div>
+
+                <!-- Sortable Providers List -->
+                <div class="glass-card rounded-3xl p-6 border border-slate-200 dark:border-white/10 shadow-xl">
+                    <div id="reorder-status-banner" class="hidden mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-bold text-center">
+                        ✓ اولویت‌ها با موفقیت در دیتابیس ذخیره شدند.
+                    </div>
+
+                    <div id="providers-sortable-list" class="space-y-3">
+                        {% for provider in providers %}
+                            <div data-id="{{ provider.id }}" 
+                                 class="provider-item p-4 sm:p-5 rounded-2xl bg-slate-100/60 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 flex items-center justify-between gap-4 cursor-move hover:border-indigo-500/40 transition-all">
+                                
+                                <div class="flex items-center gap-4">
+                                    <!-- Drag Handle -->
+                                    <div class="drag-handle text-slate-400 hover:text-indigo-500 p-1">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+                                        </svg>
+                                    </div>
+
+                                    <!-- Priority Badge -->
+                                    <div class="priority-badge w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center justify-center">
+                                        {{ provider.priority_order }}
+                                    </div>
+
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 uppercase">
+                                                {{ provider.get_provider_name_display }}
+                                            </span>
+                                            <span class="text-sm font-bold text-slate-800 dark:text-white font-mono">{{ provider.model_name }}</span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-400 mt-1 font-mono">
+                                            API Key: {{ provider.api_key|slice:":8" }}••••••••
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <!-- Active Toggle Form -->
+                                    <form action="/admin-panel/providers/{{ provider.id }}/toggle/" method="POST">
+                                        {% csrf_token %}
+                                        <button type="submit" 
+                                                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors
+                                                       {% if provider.is_active %}bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20{% else %}bg-slate-200 dark:bg-white/10 text-slate-400 hover:text-white{% endif %}">
+                                            {% if provider.is_active %}فعال{% else %}غیرفعال{% endif %}
+                                        </button>
+                                    </form>
+
+                                    <!-- Delete Form -->
+                                    <form action="/admin-panel/providers/{{ provider.id }}/delete/" method="POST" onsubmit="return confirm('آیا از حذف این کانفیگ مطمئن هستید؟')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="p-2 text-slate-400 hover:text-red-500 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="text-center py-10 text-slate-400 text-xs">
+                                هیچ کانفیگی ثبت نشده است. روی دکمه «افزودن کانفیگ جدید» کلیک کنید.
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: USERS MANAGEMENT -->
+            <div x-show="currentTab === 'users'" class="space-y-6" style="display: none;">
+                <div class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-white/10 shadow-xl">
+                    <h2 class="text-2xl font-black text-slate-800 dark:text-white mb-2">لیست کاربران سیستم</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-6">مدیریت سهمیه و فعال‌سازی اشتراک VIP کاربران</p>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400">
+                                    <th class="py-3 px-4">کاربر</th>
+                                    <th class="py-3 px-4">ایمیل</th>
+                                    <th class="py-3 px-4">وضعیت اشتراک</th>
+                                    <th class="py-3 px-4">استفاده امروز</th>
+                                    <th class="py-3 px-4">عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-white/5">
+                                {% for u in users %}
+                                    <tr>
+                                        <td class="py-3.5 px-4 font-bold text-slate-800 dark:text-white">{{ u.username }}</td>
+                                        <td class="py-3.5 px-4 text-slate-500 dark:text-slate-400 font-mono">{{ u.email }}</td>
+                                        <td class="py-3.5 px-4">
+                                            {% if u.is_vip %}
+                                                <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-500 font-bold">VIP ({{ u.remaining_vip_days }} روز)</span>
+                                            {% else %}
+                                                <span class="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-white/10 text-slate-500">عادی</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="py-3.5 px-4 font-mono">{{ u.daily_usage }} / {{ u.max_daily_quota }}</td>
+                                        <td class="py-3.5 px-4">
+                                            <div class="flex items-center gap-2">
+                                                <form action="/admin-panel/users/{{ u.id }}/update/" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="toggle_vip">
+                                                    <button type="submit" class="px-2.5 py-1 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 transition-colors font-bold">
+                                                        {% if u.is_vip %}لغو VIP{% else %}تبدیل به VIP{% endif %}
+                                                    </button>
+                                                </form>
+                                                <form action="/admin-panel/users/{{ u.id }}/update/" method="POST">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="action" value="reset_usage">
+                                                    <button type="submit" class="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-300 transition-colors">
+                                                        ریست سهمیه
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Add New AI Provider -->
+    <div x-show="showAddProviderModal" 
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         style="display: none;"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="showAddProviderModal = false"></div>
+
+        <div class="min-h-full flex items-center justify-center p-4">
+            <div class="relative w-full max-w-md glass-card rounded-3xl p-8 border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden"
+                 @click.outside="showAddProviderModal = false">
+
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-white">افزودن کانفیگ هوش مصنوعی</h3>
+                    <button @click="showAddProviderModal = false" class="p-2 text-slate-400 hover:text-white">✕</button>
+                </div>
+
+                <form action="/admin-panel/providers/create/" method="POST" class="space-y-4">
+                    {% csrf_token %}
+
+                    <!-- Provider Dropdown -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">نوع ارائه‌دهنده</label>
+                        <select name="provider_name" class="glass-input w-full px-4 py-3 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:outline-none">
+                            <option value="mistral" class="bg-slate-900 text-white">Mistral AI</option>
+                        </select>
+                    </div>
+
+                    <!-- Typed Model Name Input -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">نام مدل (قابل نوشتن)</label>
+                        <input type="text" 
+                               name="model_name" 
+                               required 
+                               value="mistral-small-2506"
+                               placeholder="مثلاً: mistral-small-2506 یا open-mistral-7b"
+                               class="glass-input w-full px-4 py-3 rounded-xl text-xs font-mono placeholder-slate-400 focus:outline-none">
+                    </div>
+
+                    <!-- API Key -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">کلید API Key</label>
+                        <input type="password" 
+                               name="api_key" 
+                               required 
+                               placeholder="sk-..."
+                               class="glass-input w-full px-4 py-3 rounded-xl text-xs font-mono placeholder-slate-400 focus:outline-none">
+                    </div>
+
+
+                    <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/25 transition-all mt-2">
+                        ذخیره کانفیگ
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const listEl = document.getElementById('providers-sortable-list');
+        if (listEl && typeof Sortable !== 'undefined') {
+            new Sortable(listEl, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                onEnd: function () {
+                    const items = listEl.querySelectorAll('.provider-item');
+                    const order = Array.from(items).map(item => parseInt(item.getAttribute('data-id')));
+                    
+                    // Update priority numbers visually
+                    items.forEach((item, index) => {
+                        const badge = item.querySelector('.priority-badge');
+                        if (badge) badge.innerText = index + 1;
+                    });
+
+                    // Send POST reorder request
+                    fetch('/admin-panel/providers/reorder/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({ order: order })
+                    }).then(res => res.json()).then(data => {
+                        const banner = document.getElementById('reorder-status-banner');
+                        if (banner) {
+                            banner.classList.remove('hidden');
+                            setTimeout(() => banner.classList.add('hidden'), 3000);
+                        }
+                    }).catch(err => console.error('Error reordering providers:', err));
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

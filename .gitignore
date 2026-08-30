@@ -1,6 +1,10 @@
 test*
 .venv
-zirnovisa.db
 __pycache__/
 .idea/
 .env
+media
+outputs/
+tests
+uploads/
+db.sqlite3

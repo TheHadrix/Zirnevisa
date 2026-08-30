@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}درگاه پرداخت شبیه‌ساز | زیرنویسا{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-16">
+    <div class="glass-card rounded-3xl p-8 border border-slate-200 dark:border-white/10 relative overflow-hidden shadow-2xl">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 mx-auto rounded-3xl bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center mb-4 shadow-lg shadow-amber-500/20">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-black text-slate-800 dark:text-white">درگاه پرداخت اینترنتی</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">شبیه‌ساز خرید اشتراک ویژه ۳۰ روزه VIP</p>
+        </div>
+
+        <div class="space-y-4 mb-8">
+            <div class="p-4 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-between text-xs">
+                <span class="text-slate-500 dark:text-slate-400">کاربر خریدار:</span>
+                <span class="font-bold text-slate-800 dark:text-white">{{ request.user.username }}</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-between text-xs">
+                <span class="text-slate-500 dark:text-slate-400">محصول:</span>
+                <span class="font-bold text-amber-600 dark:text-amber-400">اشتراک ۱ ماهه VIP (۱۰ فایل روزانه)</span>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">مبلغ نهایی:</span>
+                <span class="text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">{{ amount }} <span class="text-xs font-medium">تومان</span></span>
+            </div>
+        </div>
+
+        <form action="/payment/process/" method="POST" class="space-y-3">
+            {% csrf_token %}
+
+            <button type="submit" 
+                    name="action" 
+                    value="success"
+                    class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/25 transition-all flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                پرداخت موفق و ارتقا به VIP
+            </button>
+
+            <button type="submit" 
+                    name="action" 
+                    value="cancel"
+                    class="w-full py-3 rounded-xl bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 font-semibold text-xs transition-colors">
+                انصراف و بازگشت
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

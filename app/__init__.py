@@ -1,1 +1,0 @@
-# ZirNovisa App Package

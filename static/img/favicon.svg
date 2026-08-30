@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="fav-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="50%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+    <linearGradient id="fav-sub" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+    <filter id="fav-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#fav-bg)"/>
+  
+  <!-- Outer subtle border -->
+  <rect x="2" y="2" width="60" height="60" rx="18" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.3"/>
+
+  <!-- Subtitle Screen/Box Frame -->
+  <rect x="14" y="16" width="36" height="24" rx="6" stroke="#ffffff" stroke-width="2.5" stroke-opacity="0.9" fill="#0f172a" fill-opacity="0.4"/>
+  
+  <!-- Subtitle Lines (Persian translation lines) -->
+  <rect x="20" y="23" width="24" height="3" rx="1.5" fill="url(#fav-sub)"/>
+  <rect x="24" y="30" width="16" height="3" rx="1.5" fill="#f8fafc"/>
+
+  <!-- AI Sparkle (Star) -->
+  <path d="M46 36L48 42L54 44L48 46L46 52L44 46L38 44L44 42Z" fill="#38bdf8" filter="url(#fav-glow)"/>
+  <circle cx="20" cy="46" r="2" fill="#ec4899"/>
+</svg>
