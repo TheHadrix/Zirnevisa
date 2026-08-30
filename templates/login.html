@@ -4,20 +4,24 @@
 
 {% block content %}
 <div class="max-w-md mx-auto px-4 py-16">
-    <div class="glass-card rounded-3xl p-8 border border-slate-200 dark:border-white/10 relative overflow-hidden shadow-2xl"
+    <div class="glass-card rounded-[2rem] p-8 sm:p-10 border border-slate-200 dark:border-white/10 relative overflow-hidden shadow-2xl noise-overlay animate-fade-in-scale"
          x-data="{ isSubmitting: false }">
-        <div class="text-center mb-8">
-            <div class="w-12 h-12 mx-auto rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+        
+        <!-- Decorative accent -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="text-center mb-8 relative z-10">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500/15 to-purple-500/15 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/10">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                 </svg>
             </div>
             <h2 class="text-2xl font-black text-slate-800 dark:text-white">ورود به حساب</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">به حساب زیرنویسا خود وارد شوید</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">به حساب زیرنویسا خود وارد شوید</p>
         </div>
 
         <!-- Error Alert Container -->
-        <div id="login-error-container">
+        <div id="login-error-container" class="relative z-10">
             {% if error %}
             <div class="p-3.5 bg-red-500/15 border border-red-500/30 text-red-600 dark:text-red-400 rounded-2xl text-xs font-bold flex items-center gap-2.5 mb-4 shadow-sm">
                 <svg class="w-5 h-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,7 +39,7 @@
               hx-swap="innerHTML"
               @submit="isSubmitting = true"
               @htmx:after-request="isSubmitting = false"
-              class="space-y-4">
+              class="space-y-5 relative z-10">
             {% csrf_token %}
 
             <div>
@@ -44,7 +48,7 @@
                        name="username_or_email" 
                        required 
                        placeholder="مثلاً: user یا user@example.com"
-                       class="glass-input w-full px-4 py-3 rounded-xl text-sm placeholder-slate-400 focus:outline-none">
+                       class="glass-input w-full px-4 py-3.5 rounded-2xl text-sm placeholder-slate-400 focus:outline-none">
             </div>
 
             <div>
@@ -53,13 +57,13 @@
                        name="password" 
                        required 
                        placeholder="••••••••"
-                       class="glass-input w-full px-4 py-3 rounded-xl text-sm placeholder-slate-400 focus:outline-none">
+                       class="glass-input w-full px-4 py-3.5 rounded-2xl text-sm placeholder-slate-400 focus:outline-none">
             </div>
 
             <button type="submit" 
                     :disabled="isSubmitting"
-                    :class="{ 'opacity-50 cursor-not-allowed': isSubmitting }"
-                    class="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm shadow-xl shadow-indigo-600/25 transition-all mt-2 flex items-center justify-center gap-2">
+                    :class="{ 'opacity-50 cursor-not-allowed !transform-none': isSubmitting }"
+                    class="btn-primary w-full py-4 rounded-2xl text-white font-bold text-sm shadow-xl shadow-indigo-600/25 flex items-center justify-center gap-2 mt-3">
                 <span x-show="!isSubmitting">ورود به سامانه</span>
                 <span x-show="isSubmitting" class="flex items-center gap-2" style="display: none;">
                     <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,7 +74,7 @@
             </button>
         </form>
 
-        <div class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
+        <div class="mt-7 text-center text-xs text-slate-500 dark:text-slate-400 relative z-10">
             حساب کاربری ندارید؟ 
             <a href="/register/" class="text-indigo-600 dark:text-indigo-400 hover:underline font-bold mr-1">ثبت‌نام کنید</a>
         </div>

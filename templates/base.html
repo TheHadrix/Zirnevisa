@@ -160,14 +160,22 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="flex-1 relative z-10">
+    <main class="flex-1 relative z-10 transition-all duration-300">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-200 dark:border-white/5 py-8 mt-20 relative z-10 bg-slate-100/50 dark:bg-[#090d16]">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
-            <p>© 2026 زیرنویسا (ZirNovisa) - موتور هوشمند ترجمه تخصصی زیرنویس فیلم و سریال با Mistral AI</p>
+    <footer class="relative z-10 mt-20">
+        <div class="h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent"></div>
+        <div class="py-10 bg-slate-100/50 dark:bg-[#090d16]">
+            <div class="max-w-7xl mx-auto px-4 text-center space-y-3">
+                <p class="text-xs text-slate-500 dark:text-slate-500">
+                    ساخته شده با <span class="text-red-400">❤</span> و <span class="font-bold text-gradient">هوش مصنوعی</span>
+                </p>
+                <p class="text-[11px] text-slate-400 dark:text-slate-600">
+                    © 2026 زیرنویسا (ZirNovisa) — موتور هوشمند ترجمه تخصصی زیرنویس فیلم و سریال
+                </p>
+            </div>
         </div>
     </footer>
 
