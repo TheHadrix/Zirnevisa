@@ -20,7 +20,8 @@ DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = [
     "https://*.snapdeploy.dev",
-    'https://*.onrender.com'
+    'https://*.onrender.com',
+    'https://*.containers.snapdeploy.app'
 ]
 
 # Application definition
