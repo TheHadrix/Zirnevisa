@@ -18,7 +18,10 @@ SECRET_KEY = os.getenv("SECRET_KEY", "zirnovisa-super-secret-django-key-2026-xyz
 DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["https://*", "http://*"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.snapdeploy.dev",
+    'https://*.onrender.com'
+]
 
 # Application definition
 INSTALLED_APPS = [
