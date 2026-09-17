@@ -1,12 +1,28 @@
 import logging
 import httpx
 from typing import Optional, Tuple
+from django.conf import settings
 from translations.models import ProviderConfig
 
 logger = logging.getLogger(__name__)
 
 MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 GEMINI_OPENAI_API_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+
+
+def get_active_chunk_size() -> int:
+    """
+    Determine optimal chunk character size dynamically based on the primary active provider:
+    - Gemini: 38,000 characters (supports 65k output tokens with high throughput)
+    - Mistral: 18,000 characters (capped at 16k output tokens, avoids 429 rate limits and length cuts)
+    """
+    try:
+        primary = ProviderConfig.objects.filter(is_active=True).order_by('priority_order', 'id').first()
+        if primary and primary.provider_name == 'mistral':
+            return getattr(settings, 'MISTRAL_CHUNK_MAX_CHARS', 18000)
+    except Exception:
+        pass
+    return getattr(settings, 'GEMINI_CHUNK_MAX_CHARS', 38000)
 
 SYSTEM_PROMPT = """شما یک مترجم نخبه و ارشد زیرنویس فیلم، سریال و انیمه هستید که مهارت بی‌نظیری در ترجمه زنده، طبیعی و بسیار روان به زبان فارسی محاوره‌ای (گفتاری) دارید؛ دقیقاً شبیه به بهترین و باکیفیت‌ترین زیرنویس‌های انسانی منتشرشده در فضای وب فارسی.
 

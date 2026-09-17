@@ -20,7 +20,7 @@ from django.conf import settings
 from accounts.models import User
 from translations.models import ProviderConfig, TranslationTask, GuestUsage
 from translations.services.srt_processor import SRTProcessor
-from translations.services.llm_service import translate_subtitle_chunk, MISTRAL_API_URL, GEMINI_OPENAI_API_URL
+from translations.services.llm_service import translate_subtitle_chunk, MISTRAL_API_URL, GEMINI_OPENAI_API_URL, get_active_chunk_size
 from translations.services.cleanup_service import schedule_file_cleanup
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ def _process_translation_background(task_id: str, input_path: str, output_path: 
             task.save()
             return
 
-        max_chunk_chars = getattr(settings, 'SUBTITLE_CHUNK_MAX_CHARS', 38000)
+        max_chunk_chars = get_active_chunk_size()
         chunks = SRTProcessor.chunk_blocks(blocks, max_chars_per_chunk=max_chunk_chars)
         task.total_chunks = len(chunks)
         task.save()
@@ -202,7 +202,7 @@ def upload_task_view(request):
         target_lang=target_lang,
         status='PENDING',
         progress=5,
-        total_chunks=len(SRTProcessor.chunk_blocks(blocks, getattr(settings, 'SUBTITLE_CHUNK_MAX_CHARS', 38000)))
+        total_chunks=len(SRTProcessor.chunk_blocks(blocks, get_active_chunk_size()))
     )
 
     # Start background translation thread
