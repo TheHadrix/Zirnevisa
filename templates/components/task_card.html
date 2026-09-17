@@ -5,7 +5,7 @@
      hx-trigger="every 2s"
      hx-swap="outerHTML"
      {% endif %}
-     class="glass-card rounded-[2rem] p-7 sm:p-9 border border-slate-200 dark:border-white/10 shadow-2xl transition-all relative overflow-hidden noise-overlay animate-fade-in-scale">
+     class="glass-card rounded-2xl sm:rounded-[2rem] p-5 sm:p-7 md:p-9 border border-slate-200 dark:border-white/10 shadow-2xl transition-all relative overflow-hidden noise-overlay animate-fade-in-scale">
 
     <!-- Shimmer overlay for processing state -->
     {% if task.status == 'PROCESSING' %}
@@ -13,34 +13,34 @@
     {% endif %}
 
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 relative z-10">
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-lg shrink-0
                         {% if task.status == 'COMPLETED' %}bg-emerald-500/15 text-emerald-500 shadow-emerald-500/10
                         {% elif task.status == 'FAILED' %}bg-red-500/15 text-red-500 shadow-red-500/10
-                        {% else %}bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 shadow-indigo-500/10{% endif %}">
+                        {% else %}bg-red-500/15 text-red-600 dark:text-red-400 shadow-red-500/10{% endif %}">
                 {% if task.status == 'COMPLETED' %}
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                 {% elif task.status == 'FAILED' %}
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 {% else %}
-                    <svg class="w-7 h-7 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6 sm:w-7 sm:h-7 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
                 {% endif %}
             </div>
-            <div>
-                <h4 class="text-lg font-black text-slate-800 dark:text-white">{{ task.filename }}</h4>
-                <div class="flex flex-wrap items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <div class="min-w-0 flex-1">
+                <h4 class="text-base sm:text-lg font-black text-slate-800 dark:text-white truncate" title="{{ task.filename }}">{{ task.filename }}</h4>
+                <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-1">
                     <span>{{ task.char_count|default:'—' }} کاراکتر</span>
                     <span class="text-slate-300 dark:text-slate-600">•</span>
                     <span>مقصد: فارسی</span>
                     {% if task.status == 'COMPLETED' and task.provider_used %}
                         <span class="text-slate-300 dark:text-slate-600">•</span>
-                        <span class="inline-flex items-center gap-1 font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md font-mono text-[11px]">
+                        <span class="inline-flex items-center gap-1 font-semibold text-red-600 dark:text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md font-mono text-[11px]">
                             🤖 {{ task.provider_used }}
                         </span>
                     {% endif %}
@@ -61,10 +61,10 @@
                     خطا در پردازش
                 </span>
             {% elif task.status == 'PROCESSING' %}
-                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold shadow-sm">
+                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold shadow-sm">
                     <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-500 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                     </span>
                     در حال ترجمه با هوش مصنوعی
                 </span>
@@ -90,10 +90,10 @@
                     در حال آماده‌سازی و بخش‌بندی...
                 {% endif %}
             </span>
-            <span class="font-black text-indigo-600 dark:text-indigo-400 font-mono text-sm">{{ task.progress }}%</span>
+            <span class="font-black text-red-600 dark:text-red-400 font-mono text-sm">{{ task.progress }}%</span>
         </div>
         <div class="w-full h-3.5 bg-slate-200/80 dark:bg-white/5 rounded-full overflow-hidden border border-slate-300/30 dark:border-white/5 progress-bar-track {% if task.status == 'PROCESSING' %}animate-progress-glow{% endif %}">
-            <div class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-700 ease-out animate-gradient"
+            <div class="h-full bg-gradient-to-r from-red-500 via-rose-500 to-red-600 rounded-full transition-all duration-700 ease-out animate-gradient"
                  style="width: {{ task.progress }}%;"></div>
         </div>
     </div>

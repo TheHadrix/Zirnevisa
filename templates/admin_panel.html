@@ -144,35 +144,35 @@
                             <div data-id="{{ provider.id }}" 
                                  class="provider-item p-4 sm:p-5 rounded-2xl bg-slate-100/60 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 flex flex-col gap-3 hover:border-indigo-500/40 transition-all">
                                 
-                                <div class="flex items-center justify-between gap-4">
-                                    <div class="flex items-center gap-4">
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                                    <div class="flex items-center gap-3 sm:gap-4 min-w-0 w-full sm:w-auto">
                                         <!-- Drag Handle -->
-                                        <div class="drag-handle text-slate-400 hover:text-indigo-500 p-1 cursor-move" title="برای تغییر اولویت بکشید">
+                                        <div class="drag-handle text-slate-400 hover:text-indigo-500 p-1 cursor-move shrink-0" title="برای تغییر اولویت بکشید">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
                                             </svg>
                                         </div>
 
                                         <!-- Priority Badge -->
-                                        <div class="priority-badge w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center justify-center">
+                                        <div class="priority-badge w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs flex items-center justify-center shrink-0">
                                             {{ provider.priority_order }}
                                         </div>
 
-                                        <div>
-                                            <div class="flex items-center gap-2">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex flex-wrap items-center gap-2">
                                                 {% if provider.provider_name == 'gemini' %}
-                                                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center gap-1">
+                                                    <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center gap-1 shrink-0">
                                                         <svg class="w-3 h-3 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
                                                             <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/>
                                                         </svg>
                                                         Gemini
                                                     </span>
                                                 {% else %}
-                                                    <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-purple-500/15 text-purple-600 dark:text-purple-400 uppercase">
+                                                    <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-600 dark:text-purple-400 uppercase shrink-0">
                                                         Mistral
                                                     </span>
                                                 {% endif %}
-                                                <span class="text-sm font-bold text-slate-800 dark:text-white font-mono">{{ provider.model_name }}</span>
+                                                <span class="text-xs sm:text-sm font-bold text-slate-800 dark:text-white font-mono truncate max-w-[140px] sm:max-w-none">{{ provider.model_name }}</span>
                                             </div>
                                             <p class="text-[11px] text-slate-400 mt-1 font-mono">
                                                 API Key: {{ provider.api_key|slice:":8" }}••••••••
@@ -180,7 +180,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end pt-2 sm:pt-0 border-t sm:border-0 border-slate-200/60 dark:border-white/5">
                                         <!-- Test Connection Button -->
                                         <button type="button" 
                                                 @click="testProvider({{ provider.id }})"
@@ -319,7 +319,7 @@
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="showAddProviderModal = false"></div>
 
         <div class="min-h-full flex items-center justify-center p-4">
-            <div class="relative w-full max-w-md glass-card rounded-3xl p-8 border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden"
+            <div class="relative w-full max-w-md glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden"
                  @click.outside="showAddProviderModal = false">
 
                 <div class="flex items-center justify-between mb-6">

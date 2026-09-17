@@ -3,50 +3,50 @@
 {% block title %}زیرنویسا | سامانه هوشمند ترجمه زیرنویس با هوش مصنوعی{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-16 sm:py-20">
+<div class="max-w-4xl mx-auto px-4 py-8 sm:py-16 md:py-20">
     <!-- Hero Section -->
-    <div class="text-center mb-16 animate-fade-in-up">
-        <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold mb-8 shadow-sm">
-            <span class="relative flex h-2.5 w-2.5">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-500 opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
+    <div class="text-center mb-10 sm:mb-16 animate-fade-in-up">
+        <div class="inline-flex items-center gap-2 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-[11px] sm:text-xs font-bold mb-6 sm:mb-8 shadow-sm max-w-full text-center">
+            <span class="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5 shrink-0">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-red-500"></span>
             </span>
-            موتور ترجمه تخصصی زیرنویس فیلم و سریال با Mistral AI
+            <span>موتور ترجمه تخصصی زیرنویس فیلم و سریال با هوش مصنوعی</span>
         </div>
-        <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-slate-800 dark:text-white mb-5 leading-tight">
+        <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-800 dark:text-white mb-4 sm:mb-5 leading-tight">
             ترجمه آنلاین زیرنویس<br>
             <span class="text-gradient">با هوش مصنوعی</span>
         </h1>
-        <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            فایل SRT خود را بارگذاری کنید؛ هوش مصنوعی ساختار زمانبندی را حفظ کرده و متنها را به <strong class="text-slate-800 dark:text-white">فارسی روان و اصیل</strong> ترجمه میکند.
+        <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-base max-w-2xl mx-auto leading-relaxed px-2">
+            فایل SRT خود را بارگذاری کنید؛ هوش مصنوعی ساختار زمان‌بندی را حفظ کرده و متن‌ها را به <strong class="text-slate-800 dark:text-white">فارسی روان و اصیل</strong> ترجمه می‌کند.
         </p>
 
         <!-- Quota Status Banner -->
-        <div class="mt-8 inline-flex items-center gap-4 px-6 py-3 rounded-2xl glass-card border border-slate-200 dark:border-white/10 text-xs shadow-lg animate-fade-in-up delay-100">
+        <div class="mt-6 sm:mt-8 inline-flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 rounded-2xl glass-card border border-slate-200 dark:border-white/10 text-xs shadow-lg animate-fade-in-up delay-100 max-w-full">
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center">
-                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                     </svg>
                 </div>
                 <div class="text-right">
-                    <span class="text-slate-500 dark:text-slate-400 block">سهمیه امروز</span>
-                    <span class="font-bold text-indigo-600 dark:text-indigo-400 text-sm">{{ remaining_quota }} از {{ max_quota }} فایل</span>
+                    <span class="text-slate-500 dark:text-slate-400 block text-[11px]">سهمیه امروز</span>
+                    <span class="font-bold text-red-600 dark:text-red-400 text-xs sm:text-sm">{{ remaining_quota }} از {{ max_quota }} فایل</span>
                 </div>
             </div>
             {% if not is_vip %}
-                <div class="w-px h-8 bg-slate-200 dark:bg-white/10"></div>
+                <div class="hidden sm:block w-px h-8 bg-slate-200 dark:bg-white/10"></div>
                 <button type="button" 
                         @click="$dispatch('show-vip-modal')"
-                        class="text-amber-600 dark:text-amber-400 font-bold hover:text-amber-500 transition-colors flex items-center gap-1.5">
+                        class="text-amber-600 dark:text-amber-400 font-bold hover:text-amber-500 transition-colors flex items-center gap-1.5 text-xs py-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                     </svg>
                     ارتقا به VIP
                 </button>
             {% else %}
-                <div class="w-px h-8 bg-slate-200 dark:bg-white/10"></div>
-                <span class="text-amber-500 font-bold flex items-center gap-1.5">
+                <div class="hidden sm:block w-px h-8 bg-slate-200 dark:bg-white/10"></div>
+                <span class="text-amber-500 font-bold flex items-center gap-1.5 text-xs py-1">
                     👑 اشتراک VIP فعال
                 </span>
             {% endif %}
@@ -54,7 +54,7 @@
     </div>
 
     <!-- Upload & Translation Box -->
-    <div class="glass-card rounded-[2rem] p-8 sm:p-12 border border-slate-200 dark:border-white/10 relative overflow-hidden shadow-2xl mb-16 animate-fade-in-up delay-200 noise-overlay"
+    <div class="glass-card rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 md:p-12 border border-slate-200 dark:border-white/10 relative overflow-hidden shadow-2xl mb-12 sm:mb-16 animate-fade-in-up delay-200 noise-overlay"
          x-data="{
              dragging: false,
              fileName: '',
@@ -101,9 +101,9 @@
              }
          }">
 
-        <!-- Decorative gradient orb -->
-        <div class="absolute -top-32 -left-32 w-64 h-64 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full blur-3xl pointer-events-none animate-float"></div>
-        <div class="absolute -bottom-32 -right-32 w-64 h-64 bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-3xl pointer-events-none animate-float delay-300"></div>
+        <!-- Decorative gradient orb (Desktop only for peak mobile performance) -->
+        <div class="hidden sm:block absolute -top-32 -left-32 w-64 h-64 bg-red-500/10 dark:bg-indigo-500/20 rounded-full blur-3xl pointer-events-none animate-float"></div>
+        <div class="hidden sm:block absolute -bottom-32 -right-32 w-64 h-64 bg-rose-500/10 dark:bg-purple-500/15 rounded-full blur-3xl pointer-events-none animate-float delay-300"></div>
 
         <!-- Upload Form with HTMX -->
         <form id="upload-form"
@@ -117,10 +117,10 @@
             {% csrf_token %}
 
             <!-- Drag & Drop Zone -->
-            <div class="border-2 border-dashed rounded-2xl p-10 sm:p-14 text-center transition-all duration-300 cursor-pointer relative group"
+            <div class="border-2 border-dashed rounded-2xl p-6 sm:p-10 md:p-14 text-center transition-all duration-300 cursor-pointer relative group"
                  :class="{
-                     'border-indigo-500 bg-indigo-500/10 scale-[1.02]': dragging,
-                     'border-slate-300 dark:border-white/10 hover:border-indigo-400/50 bg-slate-50/80 dark:bg-white/[0.02]': !dragging && !fileSelected,
+                     'border-red-500 bg-red-500/10 scale-[1.01]': dragging,
+                     'border-red-200/80 dark:border-white/10 hover:border-red-400/50 bg-red-50/20 dark:bg-white/[0.02]': !dragging && !fileSelected,
                      'border-emerald-500/50 bg-emerald-500/5': fileSelected && !isOverLimit,
                      'border-red-500/50 bg-red-500/5': isOverLimit
                  }"
@@ -137,53 +137,53 @@
                        @change="handleFileSelect($event)" 
                        required>
 
-                <div x-show="!fileSelected" class="space-y-5">
-                    <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-indigo-500/15 to-purple-500/15 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div x-show="!fileSelected" class="space-y-4 sm:space-y-5">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-3xl bg-gradient-to-br from-red-500/15 to-rose-500/15 border border-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm shadow-red-500/10">
+                        <svg class="w-8 h-8 sm:w-9 sm:h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                         </svg>
                     </div>
                     <div>
-                        <p class="text-lg font-bold text-slate-800 dark:text-white">فایل زیرنویس SRT را اینجا بکشید یا کلیک کنید</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">فرمت مجاز: فقط <span class="font-mono font-bold text-indigo-500">.srt</span> — حداکثر ۳۰,۰۰۰ کاراکتر</p>
+                        <p class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">فایل زیرنویس SRT را اینجا بکشید یا کلیک کنید</p>
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1.5 sm:mt-2">فرمت مجاز: فقط <span class="font-mono font-bold text-red-500">.srt</span> — حداکثر ۳۰,۰۰۰ کاراکتر</p>
                     </div>
                 </div>
 
                 <!-- Selected File Info -->
                 <div x-show="fileSelected" class="space-y-4" style="display: none;">
-                    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center"
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 mx-auto rounded-2xl flex items-center justify-center"
                          :class="isOverLimit ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'">
-                        <svg x-show="!isOverLimit" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg x-show="!isOverLimit" class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <svg x-show="isOverLimit" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg x-show="isOverLimit" class="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
                     <div>
-                        <p class="text-base font-bold text-slate-800 dark:text-white" x-text="fileName"></p>
+                        <p class="text-sm sm:text-base font-bold text-slate-800 dark:text-white truncate max-w-xs sm:max-w-md mx-auto" x-text="fileName"></p>
                         <div class="flex items-center justify-center gap-4 mt-2 text-xs">
                             <span :class="isOverLimit ? 'text-red-500 font-bold' : 'text-slate-500 dark:text-slate-400'">
                                 <span x-text="charCount.toLocaleString('fa-IR')"></span> کاراکتر
                             </span>
                             <span class="text-slate-300 dark:text-slate-600">|</span>
-                            <button type="button" @click.stop="resetFile()" class="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">تغییر فایل</button>
+                            <button type="button" @click.stop="resetFile()" class="text-red-600 dark:text-red-400 hover:underline font-semibold">تغییر فایل</button>
                         </div>
                     </div>
 
-                    <div x-show="isOverLimit" class="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-semibold">
+                    <div x-show="isOverLimit" class="p-3 sm:p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-semibold">
                         ⚠️ حجم کاراکترهای این فایل از حد مجاز ۳۰,۰۰۰ بیشتر است.
                     </div>
                 </div>
             </div>
 
             <!-- Controls & Submit -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-5">
-                <div class="flex items-center gap-3 w-full sm:w-auto">
-                    <label class="text-xs font-semibold text-slate-600 dark:text-slate-400">زبان مقصد:</label>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 sm:gap-5">
+                <div class="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
+                    <label class="text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0">زبان مقصد:</label>
                     <select name="target_lang" 
                             x-model="targetLang" 
-                            class="glass-input px-4 py-2.5 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none">
+                            class="glass-input px-4 py-2.5 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none flex-1 sm:flex-initial">
                         <option value="fa" class="bg-slate-900 text-white">فارسی (Persian)</option>
                     </select>
                 </div>
@@ -191,7 +191,7 @@
                 <button type="submit" 
                         :disabled="!fileSelected || isOverLimit || isUploading"
                         :class="{'opacity-50 cursor-not-allowed !transform-none': !fileSelected || isOverLimit || isUploading}"
-                        class="btn-primary w-full sm:w-auto px-10 py-4 rounded-2xl text-white font-bold text-sm shadow-xl shadow-indigo-600/25 flex items-center justify-center gap-2.5">
+                        class="btn-primary w-full sm:w-auto px-6 sm:px-10 py-3.5 sm:py-4 rounded-2xl text-white font-bold text-xs sm:text-sm shadow-xl shadow-red-500/25 flex items-center justify-center gap-2.5">
                     <span x-show="!isUploading" class="flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -215,7 +215,7 @@
     <!-- Feature Highlights -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
         <div class="feature-card glass-card rounded-3xl p-8 border border-slate-200 dark:border-white/10 text-center animate-fade-in-up delay-100">
-            <div class="feature-icon w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500/15 to-blue-500/15 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-5">
+            <div class="feature-icon w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-red-500/15 to-rose-500/15 border border-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center mb-5">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
@@ -227,7 +227,7 @@
         </div>
 
         <div class="feature-card glass-card rounded-3xl p-8 border border-slate-200 dark:border-white/10 text-center animate-fade-in-up delay-200">
-            <div class="feature-icon w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-purple-500/15 to-pink-500/15 border border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-5">
+            <div class="feature-icon w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-rose-500/15 to-red-500/15 border border-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-5">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                 </svg>
@@ -239,7 +239,7 @@
         </div>
 
         <div class="feature-card glass-card rounded-3xl p-8 border border-slate-200 dark:border-white/10 text-center animate-fade-in-up delay-300">
-            <div class="feature-icon w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-pink-500/15 to-rose-500/15 border border-pink-500/20 text-pink-600 dark:text-pink-400 flex items-center justify-center mb-5">
+            <div class="feature-icon w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-red-600/15 to-rose-600/15 border border-red-600/20 text-red-600 dark:text-red-400 flex items-center justify-center mb-5">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                 </svg>

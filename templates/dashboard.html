@@ -117,13 +117,13 @@
             {% endif %}
 
             <!-- Header & Action -->
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-white/10 shadow-xl">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 dark:border-white/10 shadow-xl">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-800 dark:text-white">داشبورد کاربری</h2>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-800 dark:text-white">داشبورد کاربری</h2>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">مشاهده و دانلود آخرین فایل‌های زیرنویس ترجمه شده</p>
                 </div>
 
-                <a href="/" class="px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/25 transition-all flex items-center gap-2">
+                <a href="/" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/25 transition-all flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
@@ -132,7 +132,7 @@
             </div>
 
             <!-- Translation Tasks List -->
-            <div class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-white/10 shadow-xl">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-slate-200 dark:border-white/10 shadow-xl">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-base font-bold text-slate-800 dark:text-white">فایل‌های ترجمه شده شما</h3>
                     {% if tasks %}
@@ -152,15 +152,15 @@
                     <div class="space-y-4">
                         {% for task in tasks %}
                             <div class="p-4 sm:p-5 rounded-2xl bg-slate-100/60 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-indigo-500/30 transition-all">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold
+                                <div class="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold shrink-0
                                                 {% if task.status == 'COMPLETED' %}bg-emerald-500/10 text-emerald-500
                                                 {% elif task.status == 'FAILED' %}bg-red-500/10 text-red-500
                                                 {% else %}bg-indigo-500/10 text-indigo-500{% endif %}">
                                         SRT
                                     </div>
-                                    <div>
-                                        <h5 class="text-sm font-bold text-slate-800 dark:text-white">{{ task.filename }}</h5>
+                                    <div class="min-w-0 flex-1">
+                                        <h5 class="text-sm font-bold text-slate-800 dark:text-white truncate" title="{{ task.filename }}">{{ task.filename }}</h5>
                                         <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-400 mt-0.5">
                                             <span>{{ task.created_at|date:"Y/m/d H:i" }}</span>
                                             <span>•</span>
@@ -173,7 +173,7 @@
                                     </div>
                                 </div>
 
-                                <div class="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+                                <div class="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end pt-2 sm:pt-0 border-t sm:border-0 border-slate-200/60 dark:border-white/5">
                                     {% if task.status == 'COMPLETED' %}
                                         <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-500 text-xs font-bold">تکمیل شده</span>
                                         {% if task.result_file_path %}

@@ -3,9 +3,9 @@
 {% block title %}ثبت‌نام و تایید ایمیل | زیرنویسا{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto px-4 py-16">
+<div class="max-w-md mx-auto px-4 py-8 sm:py-16">
     <div id="register-box" 
-         class="glass-card rounded-[2rem] p-8 sm:p-10 border border-slate-200 dark:border-white/10 relative overflow-hidden shadow-2xl noise-overlay animate-fade-in-scale"
+         class="glass-card rounded-2xl sm:rounded-[2rem] p-6 sm:p-10 border border-slate-200 dark:border-white/10 relative overflow-hidden shadow-2xl noise-overlay animate-fade-in-scale"
          x-data="{ isSubmitting: false }">
 
         <!-- Decorative accent -->
@@ -61,7 +61,7 @@
             <button type="submit" 
                     :disabled="isSubmitting"
                     :class="{ 'opacity-50 cursor-not-allowed !transform-none': isSubmitting }"
-                    class="btn-primary w-full py-4 rounded-2xl text-white font-bold text-sm shadow-xl shadow-indigo-600/25 flex items-center justify-center gap-2 mt-3">
+                    class="btn-primary w-full py-4 rounded-2xl text-white font-bold text-sm shadow-xl shadow-red-500/25 flex items-center justify-center gap-2 mt-3">
                 <span x-show="!isSubmitting" class="flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -79,7 +79,7 @@
 
         <div class="mt-7 text-center text-xs text-slate-500 dark:text-slate-400 relative z-10">
             قبلاً ثبت‌نام کرده‌اید؟ 
-            <a href="/login/" class="text-indigo-600 dark:text-indigo-400 hover:underline font-bold mr-1">وارد شوید</a>
+            <a href="/login/" class="text-red-600 dark:text-red-400 hover:underline font-bold mr-1">وارد شوید</a>
         </div>
     </div>
 </div>
