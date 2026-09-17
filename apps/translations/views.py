@@ -20,7 +20,14 @@ from django.conf import settings
 from accounts.models import User
 from translations.models import ProviderConfig, TranslationTask, GuestUsage
 from translations.services.srt_processor import SRTProcessor
-from translations.services.llm_service import translate_subtitle_chunk, MISTRAL_API_URL, GEMINI_OPENAI_API_URL, get_active_chunk_size
+from translations.services.llm_service import (
+    translate_subtitle_chunk,
+    call_provider_api,
+    get_provider_chunk_limit,
+    get_active_chunk_size,
+    MISTRAL_API_URL,
+    GEMINI_OPENAI_API_URL,
+)
 from translations.services.cleanup_service import schedule_file_cleanup
 
 logger = logging.getLogger(__name__)
@@ -79,24 +86,80 @@ def _process_translation_background(task_id: str, input_path: str, output_path: 
             task.save()
             return
 
-        max_chunk_chars = get_active_chunk_size()
-        chunks = SRTProcessor.chunk_blocks(blocks, max_chars_per_chunk=max_chunk_chars)
-        task.total_chunks = len(chunks)
+        active_providers = list(ProviderConfig.objects.filter(is_active=True).order_by('priority_order', 'id'))
+        if not active_providers:
+            active_providers = [
+                ProviderConfig(
+                    provider_name="gemini",
+                    model_name="gemini-2.5-flash",
+                    api_key="sk-placeholder",
+                    priority_order=1,
+                    is_active=True
+                )
+            ]
+
+        # Initial estimation of total chunks based on primary provider
+        primary_limit = get_provider_chunk_limit(active_providers[0].provider_name)
+        task.total_chunks = max(1, len(SRTProcessor.chunk_blocks(blocks, max_chars_per_chunk=primary_limit)))
         task.save()
 
+        remaining_blocks = list(blocks)
         translated_blocks = []
-        model_used_label = None
-        for i, chunk in enumerate(chunks):
-            task.current_chunk = i + 1
-            task.progress = int(((i + 1) / len(chunks)) * 95)
-            task.save()
+        total_blocks_count = len(blocks)
+        completed_chunks = 0
+        used_models_list = []
 
-            formatted_text = SRTProcessor.format_chunk_for_llm(chunk)
-            llm_response, model_label = translate_subtitle_chunk(formatted_text, target_lang=target_lang)
-            if not model_used_label:
-                model_used_label = model_label
-            chunk_translated_blocks = SRTProcessor.parse_llm_response(llm_response, chunk)
-            translated_blocks.extend(chunk_translated_blocks)
+        while remaining_blocks:
+            slice_translated = False
+            last_err = None
+
+            for provider in list(active_providers):
+                limit = get_provider_chunk_limit(provider.provider_name)
+
+                # Slice remaining blocks respecting this provider's safe capacity
+                slice_chunk = []
+                curr_chars = 0
+                for b in remaining_blocks:
+                    b_len = len(b.text)
+                    if slice_chunk and (curr_chars + b_len > limit):
+                        break
+                    slice_chunk.append(b)
+                    curr_chars += b_len
+
+                formatted_text = SRTProcessor.format_chunk_for_llm(slice_chunk)
+
+                try:
+                    llm_response, model_label = call_provider_api(provider, formatted_text, target_lang=target_lang)
+                    chunk_translated = SRTProcessor.parse_llm_response(llm_response, slice_chunk)
+                    translated_blocks.extend(chunk_translated)
+
+                    remaining_blocks = remaining_blocks[len(slice_chunk):]
+                    completed_chunks += 1
+
+                    if model_label not in used_models_list:
+                        used_models_list.append(model_label)
+
+                    # Dynamically update progress and chunk counter
+                    task.current_chunk = completed_chunks
+                    est_remaining = len(SRTProcessor.chunk_blocks(remaining_blocks, max_chars_per_chunk=limit)) if remaining_blocks else 0
+                    task.total_chunks = max(task.total_chunks, completed_chunks + est_remaining)
+                    task.progress = min(95, int((len(translated_blocks) / total_blocks_count) * 95))
+                    task.save()
+
+                    slice_translated = True
+                    break  # Successfully translated this slice with provider! Move to next slice in while loop
+                except Exception as ex:
+                    last_err = ex
+                    err_str = str(ex).lower()
+                    logger.warning(f"Provider #{provider.id} ({provider.model_name}) failed: {ex}. Checking fallback...")
+                    # If quota exhausted (429) or unauthorized (401/403), disable provider for this task
+                    if any(code in err_str for code in ["401", "403", "quota", "rate limit", "429"]):
+                        if len(active_providers) > 1:
+                            active_providers.remove(provider)
+                            logger.info(f"Temporarily disabled exhausted provider {provider.model_name} for this task.")
+
+            if not slice_translated:
+                raise Exception(f"تمامی ارائه‌دهنده‌های هوش مصنوعی با خطا مواجه شدند. آخرین خطا: {last_err}")
 
         # Reconstruct SRT
         reconstructed = SRTProcessor.reconstruct_srt(translated_blocks)
@@ -105,7 +168,7 @@ def _process_translation_background(task_id: str, input_path: str, output_path: 
 
         task.status = 'COMPLETED'
         task.progress = 100
-        task.provider_used = model_used_label
+        task.provider_used = " / ".join(used_models_list) if used_models_list else "AI"
         task.result_file_path = output_path
         task.save()
 
