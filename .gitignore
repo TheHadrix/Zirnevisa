@@ -7,6 +7,5 @@ media
 outputs/
 tests
 uploads/
-db.sqlite3
 commands
 .linuxenv
