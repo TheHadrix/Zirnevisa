@@ -54,15 +54,6 @@ python manage.py runserver
 
 ---
 
-## 🤖 ابزار پایش و ثبت خودکار مدل‌های AI
-
-برای تست خودکار سلامت اتصال و ثبت آنی مدل‌های فعال در دیتابیس سایت:
-```bash
-python commands/auto_discover_providers.py
-```
-
----
-
 ## ⚙️ تنظیمات مهم (`core/settings.py`)
 
 | متغیر | مقدار پیش‌فرض | توضیحات |

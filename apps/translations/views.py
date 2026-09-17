@@ -86,50 +86,80 @@ def _process_translation_background(task_id: str, input_path: str, output_path: 
             task.save()
             return
 
-        # Policy: One File = One Model (Strict Consistency)
-        # All chunks of this file must be translated by the same model. No mixing models mid-file.
-        provider = ProviderConfig.objects.filter(is_active=True).order_by('priority_order', 'id').first()
-        if not provider:
+        # Policy: One File = One Dedicated Model (with Whole-File Fallback Chain)
+        # If the primary provider fails (e.g. HTTP 503 / 429), fall back to the next provider
+        # to translate the ENTIRE file from scratch, guaranteeing 100% tone consistency.
+        active_providers = list(ProviderConfig.objects.filter(is_active=True).order_by('priority_order', 'id'))
+        if not active_providers:
             task.status = 'FAILED'
             task.error_message = 'هیچ ارائه‌دهنده هوش مصنوعی فعالی در سامانه تعریف نشده است.'
             task.save()
             return
 
-        clean_model = provider.model_name.replace("gemini/", "").strip()
-        provider_label = f"{provider.get_provider_name_display()} ({clean_model})"
-        max_chunk_chars = get_provider_chunk_limit(provider.provider_name)
+        file_translated_successfully = False
+        last_provider_error = None
 
-        # Chunk the entire file based strictly on THIS model's safe capacity
-        chunks = SRTProcessor.chunk_blocks(blocks, max_chars_per_chunk=max_chunk_chars)
-        task.total_chunks = len(chunks)
-        task.provider_used = provider_label
-        task.save()
+        for provider in active_providers:
+            clean_model = provider.model_name.replace("gemini/", "").strip()
+            provider_label = f"{provider.get_provider_name_display()} ({clean_model})"
+            max_chunk_chars = get_provider_chunk_limit(provider.provider_name)
 
-        translated_blocks = []
-        for i, chunk in enumerate(chunks):
-            task.current_chunk = i + 1
-            task.progress = int(((i) / len(chunks)) * 95) + 5
+            logger.info(f"Task {task_id}: Attempting full translation with Provider #{provider.id} ({provider_label})...")
+
+            # Chunk the entire file based strictly on THIS candidate model's safe capacity
+            chunks = SRTProcessor.chunk_blocks(blocks, max_chars_per_chunk=max_chunk_chars)
+            task.total_chunks = len(chunks)
+            task.provider_used = provider_label
             task.save()
 
-            formatted_text = SRTProcessor.format_chunk_for_llm(chunk)
+            translated_blocks = []
+            provider_failed = False
 
-            # Strictly translate using this file's designated model.
-            # If this model errors, we do NOT switch models mid-file. The entire file translation fails!
-            llm_response, _ = call_provider_api(provider, formatted_text, target_lang=target_lang)
+            for i, chunk in enumerate(chunks):
+                task.current_chunk = i + 1
+                task.progress = int(((i) / len(chunks)) * 95) + 5
+                task.save()
 
-            chunk_translated_blocks = SRTProcessor.parse_llm_response(llm_response, chunk)
-            translated_blocks.extend(chunk_translated_blocks)
+                formatted_text = SRTProcessor.format_chunk_for_llm(chunk)
 
-        # Reconstruct SRT
-        reconstructed = SRTProcessor.reconstruct_srt(translated_blocks)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(reconstructed)
+                try:
+                    llm_response, _ = call_provider_api(provider, formatted_text, target_lang=target_lang)
+                    chunk_translated_blocks = SRTProcessor.parse_llm_response(llm_response, chunk)
+                    translated_blocks.extend(chunk_translated_blocks)
+                except Exception as ex:
+                    last_provider_error = ex
+                    provider_failed = True
+                    logger.warning(
+                        f"Task {task_id}: Provider #{provider.id} ({provider_label}) failed on chunk {i + 1}/{len(chunks)}: {ex}. "
+                        "Falling back to next provider in priority list for the whole file..."
+                    )
+                    break  # Abort this provider and try the NEXT provider from scratch!
 
-        task.status = 'COMPLETED'
-        task.progress = 100
-        task.provider_used = provider_label
-        task.result_file_path = output_path
-        task.save()
+            if not provider_failed and len(translated_blocks) == len(blocks):
+                # Entire file was 100% translated by this single model!
+                reconstructed = SRTProcessor.reconstruct_srt(translated_blocks)
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    f.write(reconstructed)
+
+                task.status = 'COMPLETED'
+                task.progress = 100
+                task.provider_used = provider_label
+                task.result_file_path = output_path
+                task.save()
+                file_translated_successfully = True
+                break  # Successfully completed by this single provider!
+
+        if not file_translated_successfully:
+            task.status = 'FAILED'
+            err_str = str(last_provider_error)
+            if "503" in err_str or "unavailable" in err_str.lower():
+                task.error_message = f"خطای در دسترس نبودن موقت مدل‌ها (HTTP 503): {err_str} — تمامی مدل‌های فعال با ترافیک بالا مواجه شدند."
+            elif "timed out" in err_str.lower() or "timeout" in err_str.lower():
+                task.error_message = f"خطای پایان مهلت زمانی: {err_str} — لطفاً وضعیت اینترنت یا تحریم‌شکن را بررسی کنید."
+            else:
+                task.error_message = f"خطا در پردازش هوش مصنوعی: {err_str}"
+            task.save()
+            return
 
         # File retention logic:
         # - Guests (not logged in): Delete files automatically after 5 minutes (300 seconds).
