@@ -128,6 +128,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GUEST_DAILY_LIMIT = 3
 VIP_DAILY_LIMIT = 10
 CHAR_LIMIT = 30000
+SUBTITLE_CHUNK_MAX_CHARS = int(os.getenv("SUBTITLE_CHUNK_MAX_CHARS", "38000"))
 GUEST_CLEANUP_DELAY_SECONDS = 300  # 5 minutes auto-cleanup for guests only
 
 # SMTP & OTP Configuration

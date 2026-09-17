@@ -79,7 +79,8 @@ def _process_translation_background(task_id: str, input_path: str, output_path: 
             task.save()
             return
 
-        chunks = SRTProcessor.chunk_blocks(blocks, max_chars_per_chunk=25000)
+        max_chunk_chars = getattr(settings, 'SUBTITLE_CHUNK_MAX_CHARS', 38000)
+        chunks = SRTProcessor.chunk_blocks(blocks, max_chars_per_chunk=max_chunk_chars)
         task.total_chunks = len(chunks)
         task.save()
 
@@ -201,7 +202,7 @@ def upload_task_view(request):
         target_lang=target_lang,
         status='PENDING',
         progress=5,
-        total_chunks=len(SRTProcessor.chunk_blocks(blocks, 25000))
+        total_chunks=len(SRTProcessor.chunk_blocks(blocks, getattr(settings, 'SUBTITLE_CHUNK_MAX_CHARS', 38000)))
     )
 
     # Start background translation thread
