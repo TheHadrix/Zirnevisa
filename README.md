@@ -60,7 +60,7 @@ python manage.py runserver
 | :--- | :---: | :--- |
 | `GEMINI_CHUNK_MAX_CHARS` | `38000` | سقف کاراکتر هر چانک برای مدل‌های Gemini |
 | `MISTRAL_CHUNK_MAX_CHARS` | `18000` | سقف کاراکتر هر چانک برای مدل‌های Mistral |
-| `CHAR_LIMIT` | `30000` | سقف مجاز کاراکترهای فایل برای مهمانان |
+| `CHAR_LIMIT` | `38000` | سقف مجاز کاراکترهای فایل برای مهمانان |
 | `GUEST_DAILY_LIMIT` | `3` | سهمیه روزانه کاربر مهمان |
 | `VIP_DAILY_LIMIT` | `10` | سهمیه روزانه کاربر VIP |
 | `GUEST_CLEANUP_DELAY_SECONDS` | `300` | زمان حذف خودکار فایل‌های مهمان (۵ دقیقه) |

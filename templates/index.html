@@ -88,7 +88,7 @@
                  reader.onload = (e) => {
                      const text = e.target.result;
                      this.charCount = text.length;
-                     this.isOverLimit = this.charCount > 30000;
+                     this.isOverLimit = this.charCount > 38000;
                  };
                  reader.readAsText(file);
              },
@@ -145,7 +145,7 @@
                     </div>
                     <div>
                         <p class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">فایل زیرنویس SRT را اینجا بکشید یا کلیک کنید</p>
-                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1.5 sm:mt-2">فرمت مجاز: فقط <span class="font-mono font-bold text-red-500">.srt</span> — حداکثر ۳۰,۰۰۰ کاراکتر</p>
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1.5 sm:mt-2">فرمت مجاز: فقط <span class="font-mono font-bold text-red-500">.srt</span> — حداکثر ۳۸,۰۰۰ کاراکتر</p>
                     </div>
                 </div>
 
@@ -172,7 +172,7 @@
                     </div>
 
                     <div x-show="isOverLimit" class="p-3 sm:p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-semibold">
-                        ⚠️ حجم کاراکترهای این فایل از حد مجاز ۳۰,۰۰۰ بیشتر است.
+                        ⚠️ حجم کاراکترهای این فایل از حد مجاز ۳۸,۰۰۰ بیشتر است.
                     </div>
                 </div>
             </div>

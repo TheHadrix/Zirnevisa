@@ -228,7 +228,7 @@ def upload_task_view(request):
         return HttpResponse('<div class="p-4 bg-red-500/15 border border-red-500/30 text-red-500 rounded-2xl text-xs font-bold">فایل آپلود شده ساختار استاندارد زیرنویس SRT ندارد.</div>', status=400)
 
     if char_count > settings.CHAR_LIMIT:
-        return HttpResponse(f'<div class="p-4 bg-red-500/15 border border-red-500/30 text-red-500 rounded-2xl text-xs font-bold">حجم متن زیرنویس ({char_count:,} کاراکتر) بیشتر از حد مجاز ۳۰,۰۰۰ کاراکتر است.</div>', status=400)
+        return HttpResponse(f'<div class="p-4 bg-red-500/15 border border-red-500/30 text-red-500 rounded-2xl text-xs font-bold">حجم متن زیرنویس ({char_count:,} کاراکتر) بیشتر از حد مجاز {settings.CHAR_LIMIT:,} کاراکتر است.</div>', status=400)
 
     # Deduct quota
     if request.user.is_authenticated:
