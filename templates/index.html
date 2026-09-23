@@ -56,6 +56,7 @@
     <!-- Upload & Translation Box -->
     <div class="glass-card rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 md:p-12 border border-slate-200 dark:border-white/10 relative overflow-hidden shadow-2xl mb-12 sm:mb-16 animate-fade-in-up delay-200 noise-overlay"
          x-data="{
+             maxChars: {{ CHAR_LIMIT|default:38000 }},
              dragging: false,
              fileName: '',
              charCount: 0,
@@ -63,6 +64,29 @@
              fileSelected: false,
              targetLang: 'fa',
              isUploading: false,
+             calculateSrtChars(content) {
+                 if (!content) return 0;
+                 const clean = content.replace(/^\uFEFF/, '').trim();
+                 const srtRegex = /(?:^|\r?\n)(\d+)\r?\n(\d{2}:\d{2}:\d{2}[,\.]\d{3}\s*-->\s*\d{2}:\d{2}:\d{2}[,\.]\d{3})\r?\n((?:(?!\r?\n\r?\n|\r?\n\d+\r?\n\d{2}:\d{2}:\d{2})[\s\S])+)/g;
+                 let match;
+                 let totalChars = 0;
+                 let found = false;
+                 while ((match = srtRegex.exec(clean)) !== null) {
+                     found = true;
+                     totalChars += match[3].trim().length;
+                 }
+                 if (!found) {
+                     const parts = clean.split(/\r?\n\r?\n+/);
+                     for (const part of parts) {
+                         const lines = part.trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+                         if (lines.length >= 3 && /^\d+$/.test(lines[0]) && lines[1].includes('-->')) {
+                             totalChars += lines.slice(2).join('\n').length;
+                             found = true;
+                         }
+                     }
+                 }
+                 return found ? totalChars : clean.length;
+             },
              handleDrop(e) {
                  this.dragging = false;
                  if (e.dataTransfer.files.length > 0) {
@@ -87,8 +111,8 @@
                  const reader = new FileReader();
                  reader.onload = (e) => {
                      const text = e.target.result;
-                     this.charCount = text.length;
-                     this.isOverLimit = this.charCount > 38000;
+                     this.charCount = this.calculateSrtChars(text);
+                     this.isOverLimit = this.charCount > this.maxChars;
                  };
                  reader.readAsText(file);
              },
@@ -145,7 +169,7 @@
                     </div>
                     <div>
                         <p class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">فایل زیرنویس SRT را اینجا بکشید یا کلیک کنید</p>
-                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1.5 sm:mt-2">فرمت مجاز: فقط <span class="font-mono font-bold text-red-500">.srt</span> — حداکثر ۳۸,۰۰۰ کاراکتر</p>
+                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1.5 sm:mt-2">فرمت مجاز: فقط <span class="font-mono font-bold text-red-500">.srt</span> — حداکثر {{ CHAR_LIMIT_FA }} کاراکتر</p>
                     </div>
                 </div>
 
@@ -172,7 +196,7 @@
                     </div>
 
                     <div x-show="isOverLimit" class="p-3 sm:p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-semibold">
-                        ⚠️ حجم کاراکترهای این فایل از حد مجاز ۳۸,۰۰۰ بیشتر است.
+                        ⚠️ حجم کاراکترهای این فایل از حد مجاز <span x-text="maxChars.toLocaleString('fa-IR')"></span> بیشتر است.
                     </div>
                 </div>
             </div>
