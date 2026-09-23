@@ -55,17 +55,18 @@ class SRTProcessor:
         return blocks, total_chars
 
     @classmethod
-    def chunk_blocks(cls, blocks: List[SRTBlock], max_chars_per_chunk: int = 38000) -> List[List[SRTBlock]]:
+    def chunk_blocks(cls, blocks: List[SRTBlock], max_chars_per_chunk: int = 6500) -> List[List[SRTBlock]]:
         """
         Group subtitle blocks into chunks suitable for LLM translation without exceeding token/char bounds.
-        Leverages Gemini's 64k output context window for coherent, large-chunk narrative continuity.
+        Accounts for formatting overhead ([index], [BR], line breaks) to guarantee reliable, balanced chunks.
         """
         chunks: List[List[SRTBlock]] = []
         current_chunk: List[SRTBlock] = []
         current_chars = 0
 
         for block in blocks:
-            block_len = len(block.text)
+            # Approximate formatted line overhead: "[{index}] " + text + "\n" + [BR] substitutions
+            block_len = len(block.text) + len(str(block.index)) + 8
             if current_chunk and (current_chars + block_len > max_chars_per_chunk):
                 chunks.append(current_chunk)
                 current_chunk = [block]

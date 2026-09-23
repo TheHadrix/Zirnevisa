@@ -1,4 +1,6 @@
 import logging
+import time
+import re
 import httpx
 from typing import Optional, Tuple
 from django.conf import settings
@@ -13,15 +15,15 @@ GEMINI_OPENAI_API_URL = "https://generativelanguage.googleapis.com/v1beta/openai
 def get_provider_chunk_limit(provider_name: str) -> int:
     """
     Return max character chunk limit for a given provider:
-    - Gemini: 38,000 characters (supports 65k output tokens with high throughput)
-    - Mistral: 18,000 characters (capped at 16k output tokens, avoids 429 rate limits and length cuts)
+    - Gemini: 6,500 characters (~150-180 subtitle blocks, optimal for fast processing and avoiding 503 load-shedding)
+    - Mistral: 5,500 characters (safe from 16k token overflow and 429 rate limits)
     """
     name = (provider_name or "").lower()
     limits = getattr(settings, 'PROVIDER_CHUNK_LIMITS', {
-        'gemini': 38000,
-        'mistral': 18000,
+        'gemini': getattr(settings, 'GEMINI_CHUNK_MAX_CHARS', 6500),
+        'mistral': getattr(settings, 'MISTRAL_CHUNK_MAX_CHARS', 5500),
     })
-    return limits.get(name, getattr(settings, 'SUBTITLE_CHUNK_MAX_CHARS', 18000))
+    return limits.get(name, getattr(settings, 'SUBTITLE_CHUNK_MAX_CHARS', 6500))
 
 
 def get_active_chunk_size() -> int:
@@ -34,7 +36,7 @@ def get_active_chunk_size() -> int:
             return get_provider_chunk_limit(primary.provider_name)
     except Exception:
         pass
-    return getattr(settings, 'GEMINI_CHUNK_MAX_CHARS', 38000)
+    return getattr(settings, 'GEMINI_CHUNK_MAX_CHARS', 6500)
 
 SYSTEM_PROMPT = """شما یک مترجم نخبه و ارشد زیرنویس فیلم، سریال و انیمه هستید که مهارت بی‌نظیری در ترجمه زنده، طبیعی و بسیار روان به زبان فارسی محاوره‌ای (گفتاری) دارید؛ دقیقاً شبیه به بهترین و باکیفیت‌ترین زیرنویس‌های انسانی منتشرشده در فضای وب فارسی.
 
@@ -55,10 +57,11 @@ SYSTEM_PROMPT = """شما یک مترجم نخبه و ارشد زیرنویس ف
    - خروجی باید منحصراً سطرهای شماره‌دار ترجمه‌شده باشد. هیچ‌گونه مقدمه، نتیجه‌گیری، سلام و احوال‌پرسی یا کدبلاک مارک‌داون اضافه نکنید."""
 
 
-def call_provider_api(config: ProviderConfig, prompt_text: str, target_lang: str = "fa") -> Tuple[str, str]:
+def call_provider_api(config: ProviderConfig, prompt_text: str, target_lang: str = "fa", max_retries: int = 3) -> Tuple[str, str]:
     """
     Execute translation request directly against a specific ProviderConfig.
-    Includes auto-subchunking safeguard for Mistral if prompt_text exceeds MISTRAL_CHUNK_MAX_CHARS.
+    Includes smart retry with backoff for transient errors (HTTP 503, 429, 502, 504, timeouts),
+    auto-subchunking safeguard for Mistral, and thought/reasoning tag cleanup.
     Returns: (translated_content, provider_label)
     """
     clean_model = config.model_name.replace("gemini/", "").strip()
@@ -90,7 +93,7 @@ def call_provider_api(config: ProviderConfig, prompt_text: str, target_lang: str
 
         translated_parts = []
         for part in sub_chunks:
-            part_trans, _ = call_provider_api(config, part, target_lang=target_lang)
+            part_trans, _ = call_provider_api(config, part, target_lang=target_lang, max_retries=max_retries)
             translated_parts.append(part_trans)
         return "\n".join(translated_parts), provider_label
 
@@ -107,16 +110,47 @@ def call_provider_api(config: ProviderConfig, prompt_text: str, target_lang: str
         "temperature": 0.3
     }
     url = GEMINI_OPENAI_API_URL if config.provider_name == "gemini" else MISTRAL_API_URL
+    backoff_delays = [3.0, 6.0, 10.0]
 
-    with httpx.Client(timeout=600.0) as client:
-        response = client.post(url, json=payload, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            translated_content = data["choices"][0]["message"]["content"].strip()
-            return translated_content, provider_label
-        else:
-            error_detail = response.text
-            raise Exception(f"Provider #{config.id} ({provider_label}) returned HTTP {response.status_code}: {error_detail}")
+    for attempt in range(max_retries + 1):
+        try:
+            with httpx.Client(timeout=180.0) as client:
+                response = client.post(url, json=payload, headers=headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    translated_content = data["choices"][0]["message"]["content"].strip()
+                    # Strip any internal thought or reasoning tags if present
+                    translated_content = re.sub(r'<thought>.*?</thought>', '', translated_content, flags=re.DOTALL).strip()
+                    translated_content = re.sub(r'<reasoning>.*?</reasoning>', '', translated_content, flags=re.DOTALL).strip()
+                    return translated_content, provider_label
+
+                status_code = response.status_code
+                error_detail = response.text
+
+                # Transient errors: 503 (high demand spikes), 429 (burst/rate limits), 502, 504
+                is_transient = status_code in (503, 429, 502, 504)
+                if is_transient and attempt < max_retries:
+                    wait_time = backoff_delays[min(attempt, len(backoff_delays) - 1)]
+                    logger.warning(
+                        f"Provider #{config.id} ({provider_label}) returned HTTP {status_code} "
+                        f"(attempt {attempt + 1}/{max_retries + 1}). Retrying in {wait_time}s... Error: {error_detail[:150]}"
+                    )
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    raise Exception(f"Provider #{config.id} ({provider_label}) returned HTTP {status_code}: {error_detail}")
+
+        except (httpx.TimeoutException, httpx.NetworkError) as net_err:
+            if attempt < max_retries:
+                wait_time = backoff_delays[min(attempt, len(backoff_delays) - 1)]
+                logger.warning(
+                    f"Provider #{config.id} ({provider_label}) network/timeout issue "
+                    f"(attempt {attempt + 1}/{max_retries + 1}): {net_err}. Retrying in {wait_time}s..."
+                )
+                time.sleep(wait_time)
+                continue
+            else:
+                raise Exception(f"Provider #{config.id} ({provider_label}) connection failed after {max_retries + 1} attempts: {net_err}")
 
 
 def translate_subtitle_chunk(chunk_formatted_text: str, target_lang: str = "fa") -> Tuple[str, str]:

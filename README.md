@@ -58,8 +58,8 @@ python manage.py runserver
 
 | متغیر | مقدار پیش‌فرض | توضیحات |
 | :--- | :---: | :--- |
-| `GEMINI_CHUNK_MAX_CHARS` | `38000` | سقف کاراکتر هر چانک برای مدل‌های Gemini |
-| `MISTRAL_CHUNK_MAX_CHARS` | `18000` | سقف کاراکتر هر چانک برای مدل‌های Mistral |
+| `GEMINI_CHUNK_MAX_CHARS` | `6500` | سقف کاراکتر هر چانک برای مدل‌های Gemini |
+| `MISTRAL_CHUNK_MAX_CHARS` | `5500` | سقف کاراکتر هر چانک برای مدل‌های Mistral |
 | `CHAR_LIMIT` | `38000` | سقف مجاز کاراکترهای فایل برای مهمانان |
 | `GUEST_DAILY_LIMIT` | `3` | سهمیه روزانه کاربر مهمان |
 | `VIP_DAILY_LIMIT` | `10` | سهمیه روزانه کاربر VIP |
