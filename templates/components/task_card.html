@@ -40,9 +40,16 @@
                     <span>مقصد: فارسی</span>
                     {% if task.status == 'COMPLETED' and task.provider_used %}
                         <span class="text-slate-300 dark:text-slate-600">•</span>
-                        <span class="inline-flex items-center gap-1 font-semibold text-red-600 dark:text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md font-mono text-[11px]">
-                            🤖 {{ task.provider_used }}
-                        </span>
+                        <div class="inline-flex flex-wrap items-center gap-1">
+                            {% for p in task.providers_list %}
+                                <span class="inline-flex items-center gap-1 font-semibold text-red-600 dark:text-red-400 bg-red-500/10 px-2 py-0.5 rounded-md font-mono text-[11px]">
+                                    🤖 {{ p }}
+                                </span>
+                                {% if not forloop.last %}
+                                    <span class="text-slate-400 font-bold text-xs">+</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -132,9 +139,14 @@
                 {% endif %}
             </div>
             {% if task.provider_used %}
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <span>مدل هوش مصنوعی استفاده‌شده:</span>
-                <strong class="text-indigo-600 dark:text-indigo-400 font-mono font-bold">{{ task.provider_used }}</strong>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-1.5">
+                <span>{% if task.providers_list|length > 1 %}مدل‌های هوش مصنوعی استفاده‌شده:{% else %}مدل هوش مصنوعی استفاده‌شده:{% endif %}</span>
+                {% for p in task.providers_list %}
+                    <strong class="text-indigo-600 dark:text-indigo-400 font-mono font-bold bg-indigo-500/10 px-2 py-0.5 rounded-md">🤖 {{ p }}</strong>
+                    {% if not forloop.last %}
+                        <span class="text-slate-400 font-bold">+</span>
+                    {% endif %}
+                {% endfor %}
             </div>
             {% endif %}
         </div>

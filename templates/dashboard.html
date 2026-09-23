@@ -167,7 +167,14 @@
                                             <span>{{ task.char_count }} کاراکتر</span>
                                             {% if task.provider_used %}
                                                 <span>•</span>
-                                                <span class="text-indigo-600 dark:text-indigo-400 font-mono font-bold bg-indigo-500/10 px-1.5 py-0.5 rounded">🤖 {{ task.provider_used }}</span>
+                                                <div class="inline-flex flex-wrap items-center gap-1">
+                                                    {% for p in task.providers_list %}
+                                                        <span class="text-indigo-600 dark:text-indigo-400 font-mono font-bold bg-indigo-500/10 px-1.5 py-0.5 rounded">🤖 {{ p }}</span>
+                                                        {% if not forloop.last %}
+                                                            <span class="text-slate-400 font-bold text-[10px]">+</span>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
                                             {% endif %}
                                         </div>
                                     </div>

@@ -43,11 +43,18 @@ class TranslationTask(models.Model):
     progress = models.IntegerField(default=0, verbose_name="درصد پیشرفت")
     current_chunk = models.IntegerField(default=0, verbose_name="بخش جاری")
     total_chunks = models.IntegerField(default=0, verbose_name="مجموع بخش‌ها")
-    provider_used = models.CharField(max_length=150, null=True, blank=True, verbose_name="مدل هوش مصنوعی استفاده‌شده")
+    provider_used = models.CharField(max_length=500, null=True, blank=True, verbose_name="مدل‌های هوش مصنوعی استفاده‌شده")
     result_file_path = models.CharField(max_length=500, null=True, blank=True, verbose_name="مسیر فایل خروجی")
     error_message = models.TextField(null=True, blank=True, verbose_name="متن خطا")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="زمان ثبت")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="آخرین به‌روزرسانی")
+
+    @property
+    def providers_list(self):
+        """Return list of distinct models used to translate this file."""
+        if not self.provider_used:
+            return []
+        return [p.strip() for p in self.provider_used.split('+') if p.strip()]
 
     def __str__(self):
         return f"Task {self.task_id[:8]} - {self.filename} ({self.get_status_display()})"
